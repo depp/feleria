@@ -1,0 +1,3 @@
+[submodule "sglib"]
+	path = sglib
+	url = ../sglib
