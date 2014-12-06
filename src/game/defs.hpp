@@ -19,5 +19,12 @@ using ::Base::Quat;
 using ::Base::Mat4;
 using ::Base::IVec3;
 using ::Base::IBox3;
+
+/// Direction for sprites.
+enum class Direction { RIGHT, UP, LEFT, DOWN };
+
+/// Convert a vector to a direction.
+Direction direction_from_vec(Vec2 dir);
+
 }
 #endif

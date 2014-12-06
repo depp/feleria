@@ -43,6 +43,7 @@ color.cpp
 color.hpp
 control.cpp
 control.hpp
+defs.cpp
 defs.hpp
 game.cpp
 game.hpp
