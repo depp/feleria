@@ -41,6 +41,10 @@ bool SpriteSheet::load() {
     if (!texture.load("image/sprite")) {
         return false;
     }
+    glBindTexture(GL_TEXTURE_2D, texture.tex);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     Base::Data data;
     data.read("image/sprite.sgsprite", 1u << 20);

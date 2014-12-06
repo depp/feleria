@@ -40,8 +40,8 @@ void System::draw(int width, int height, const Game::Game &game) {
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     float vertxform[4] = {
-        2.0f / (float) width,
-        2.0f / (float) height,
+        8.0f / (float) width,
+        8.0f / (float) height,
         -1.0f,
         -1.0f
     };
