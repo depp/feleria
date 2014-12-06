@@ -28,7 +28,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     const auto &sp = m_sprite.get(Game::Sprite::GOBLIN_BOT, 2, 0);
     for (const auto &p : game.person()) {
         Vec2 pos = Vec2::lerp(p.m_pos[0], p.m_pos[1], frac);
-        arr.add(sp, (int) std::floor(pos[0]), (int) std::floor(pos[1]));
+        arr.add(sp, pos[0], pos[1], Base::Orientation::NORMAL);
     }
     GLuint buffer;
     glGenBuffers(1, &buffer);
@@ -54,7 +54,11 @@ void System::draw(int width, int height, const Game::Game &game) {
 
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glEnableVertexAttribArray(prog->a_vert);
-    glVertexAttribPointer(prog->a_vert, 4, GL_SHORT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(prog->a_texcoord);
+    glVertexAttribPointer(prog->a_vert, 2, GL_FLOAT, GL_FALSE,
+                          12, nullptr);
+    glVertexAttribPointer(prog->a_texcoord, 4, GL_SHORT, GL_FALSE,
+                          12, reinterpret_cast<void *>(8));
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glUniform4fv(prog->u_vertxform, 1, vertxform);

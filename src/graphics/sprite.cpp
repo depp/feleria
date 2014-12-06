@@ -130,48 +130,28 @@ void SpriteArray::clear() {
     m_array.clear();
 }
 
-void SpriteArray::add(const sg_sprite &sp, int x, int y) {
-    if (sp.w == 0) {
-        return;
-    }
-
-    short (*data)[4] = m_array.insert(6);
-
-    short tx0 = sp.x, tx1 = sp.x + sp.w;
-    short ty1 = sp.y, ty0 = sp.y + sp.h;
-    short vx0 = x, vx1 = x + sp.w;
-    short vy0 = y, vy1 = y + sp.h;
-
-    data[0][0] = vx0; data[0][1] = vy0; data[0][2] = tx0; data[0][3] = ty0;
-    data[1][0] = vx1; data[1][1] = vy0; data[1][2] = tx1; data[1][3] = ty0;
-    data[2][0] = vx0; data[2][1] = vy1; data[2][2] = tx0; data[2][3] = ty1;
-    data[3][0] = vx0; data[3][1] = vy1; data[3][2] = tx0; data[3][3] = ty1;
-    data[4][0] = vx1; data[4][1] = vy0; data[4][2] = tx1; data[4][3] = ty0;
-    data[5][0] = vx1; data[5][1] = vy1; data[5][2] = tx1; data[5][3] = ty1;
-}
-
-void SpriteArray::add(const sg_sprite &sp, int x, int y,
+void SpriteArray::add(const sg_sprite &sp, float x, float y,
                       Base::Orientation orient) {
     using Base::Orientation;
     if (sp.w == 0) {
         return;
     }
 
-    short (*data)[4] = m_array.insert(6);
+    Vertex *data = m_array.insert(6);
 
     short tx0 = sp.x, tx1 = sp.x + sp.w;
     short ty1 = sp.y, ty0 = sp.y + sp.h;
 
-    data[0][2] = tx0; data[0][3] = ty0;
-    data[1][2] = tx1; data[1][3] = ty0;
-    data[2][2] = tx0; data[2][3] = ty1;
-    data[3][2] = tx0; data[3][3] = ty1;
-    data[4][2] = tx1; data[4][3] = ty0;
-    data[5][2] = tx1; data[5][3] = ty1;
+    data[0].tx = tx0; data[0].ty = ty0;
+    data[1].tx = tx1; data[1].ty = ty0;
+    data[2].tx = tx0; data[2].ty = ty1;
+    data[3].tx = tx0; data[3].ty = ty1;
+    data[4].tx = tx1; data[4].ty = ty0;
+    data[5].tx = tx1; data[5].ty = ty1;
 
-    short rx0 = -sp.cx, rx1 = sp.w - sp.cx;
-    short ry0 = -sp.cy, ry1 = sp.h - sp.cy;
-    short vx[4], vy[4];
+    float rx0 = (float) -sp.cx, rx1 = (float) (sp.w - sp.cx);
+    float ry0 = (float) -sp.cy, ry1 = (float) (sp.h - sp.cy);
+    float vx[4], vy[4];
     switch (orient) {
     case Orientation::NORMAL:
         vx[0] = vx[2] = x + rx0;
@@ -236,12 +216,12 @@ void SpriteArray::add(const sg_sprite &sp, int x, int y,
         return;
     }
 
-    data[0][0] = vx[0]; data[0][1] = vy[0];
-    data[1][0] = vx[1]; data[1][1] = vy[1];
-    data[2][0] = vx[2]; data[2][1] = vy[2];
-    data[3][0] = vx[2]; data[3][1] = vy[2];
-    data[4][0] = vx[1]; data[4][1] = vy[1];
-    data[5][0] = vx[3]; data[5][1] = vy[3];
+    data[0].px = vx[0]; data[0].py = vy[0];
+    data[1].px = vx[1]; data[1].py = vy[1];
+    data[2].px = vx[2]; data[2].py = vy[2];
+    data[3].px = vx[2]; data[3].py = vy[2];
+    data[4].px = vx[1]; data[4].py = vy[1];
+    data[5].px = vx[3]; data[5].py = vy[3];
 }
 
 void SpriteArray::upload(GLuint usage) {

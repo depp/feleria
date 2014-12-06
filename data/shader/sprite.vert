@@ -1,11 +1,12 @@
 #version 120
 
-attribute vec4 vert;
+attribute vec2 vert;
+attribute vec2 texcoord;
 uniform vec4 vertxform;
 uniform vec2 texscale;
-varying vec2 texcoord;
+varying vec2 vtexcoord;
 
 void main() {
-    texcoord = vert.zw * texscale;
-    gl_Position = vec4(vert.xy * vertxform.xy + vertxform.zw, 0.0, 1.0);
+    vtexcoord = texcoord * texscale;
+    gl_Position = vec4(vert * vertxform.xy + vertxform.zw, 0.0, 1.0);
 }

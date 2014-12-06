@@ -41,7 +41,12 @@ public:
 // Draw with GL_TRIANGLES.
 class SpriteArray {
 private:
-    Base::Array<short[4]> m_array;
+    struct Vertex {
+        float px, py;
+        short tx, ty;
+    };
+
+    Base::Array<Vertex> m_array;
 
 public:
     SpriteArray();
@@ -53,10 +58,8 @@ public:
 
     /// Clear the array.
     void clear();
-    /// Add a sprite (tex) at the given lower-left coordinate.
-    void add(const sg_sprite &sp, int x, int y);
-    /// Add a sprite (tex) at the given lower-left coordinate.
-    void add(const sg_sprite &sp, int x, int y,
+    /// Add a sprite (tex) at the given coordinate.
+    void add(const sg_sprite &sp, float x, float y,
              Base::Orientation orient);
     /// Upload the array data.
     void upload(GLuint usage);

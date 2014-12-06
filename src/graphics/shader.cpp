@@ -36,6 +36,7 @@ const ShaderField TYPE::UNIFORMS[] = {
 
 const ShaderField TYPE::ATTRIBUTES[] = {
     AFIELD(vert),
+    AFIELD(texcoord),
     { nullptr, 0 }
 };
 #undef TYPE

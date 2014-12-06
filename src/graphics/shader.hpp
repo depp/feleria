@@ -30,6 +30,7 @@ struct Sprite {
 
     // Attributes
     GLint a_vert;
+    GLint a_texcoord;
 
     // Uniforms
     GLint u_vertxform;
