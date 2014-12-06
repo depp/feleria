@@ -21,8 +21,9 @@ enum class Part {
 };
 
 // Animation groups
-static const int GROUP_COUNT = 3;
+static const int GROUP_COUNT = 4;
 enum Group {
+    NONE, // no animation
     LEGS, // bottom
     TORSO, // items and top
     FACE, // face
@@ -46,12 +47,18 @@ public:
     Direction m_dir;
     // Sprites for each part of the person.
     int m_part[PART_COUNT];
-    // Active frame for each animation group.
+    // Active frame for each animation group, with an extra entry at
+    // the beginning set to zero.
     int m_frame[GROUP_COUNT];
     // Current and previous position.
     Vec2 m_pos[2];
     // Current velocity.
     Vec2 m_vel;
+
+    // The location where the walking animation last advanced.
+    Vec2 m_steppos;
+    // The current frame of the walking animation.
+    int m_stepframe;
 
     // Create a person at the given location.
     Person(Vec2 pos, Direction dir);
