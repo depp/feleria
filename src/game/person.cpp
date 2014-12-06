@@ -103,6 +103,7 @@ void Person::update(double abstime, float dtime) {
                 m_stepframe = (m_stepframe + (int) nstep) % WALK_COUNT;
                 walk = WALK_FRAME[m_stepframe];
                 m_standtime = abstime + STAND_TIME;
+                m_dir = direction_from_vec(step);
             } else if (abstime > m_standtime) {
                 walk = WALK_FRAME[WALK_STAND];
             } else {

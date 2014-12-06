@@ -132,6 +132,11 @@ public:
         m_part[static_cast<int>(part)] = static_cast<int>(sprite);
     }
 
+    // Get the current facing direction.
+    Direction direction() const {
+        return m_dir;
+    }
+
     // Get the current position.
     Vec2 position(float frac) const {
         return Vec2::lerp(m_pos[0], m_pos[1], frac);

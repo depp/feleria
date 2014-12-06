@@ -8,6 +8,24 @@
 #include "game/person.hpp"
 namespace Graphics {
 
+namespace {
+
+using Base::Orientation;
+
+struct DirectionInfo {
+    int index;
+    Orientation orient;
+};
+
+const DirectionInfo DIRECTION_INFO[4] = {
+    { 1, Orientation::FLIP_HORIZONTAL },
+    { 2, Orientation::NORMAL },
+    { 1, Orientation::NORMAL },
+    { 0, Orientation::NORMAL },
+};
+
+}
+
 System::System() { }
 
 System::~System() { }
@@ -32,14 +50,15 @@ void System::draw(int width, int height, const Game::Game &game) {
         auto &s = m_sprite;
         s.m_array.clear();
         for (const auto &person : game.person()) {
+            auto dir = DIRECTION_INFO[static_cast<int>(person.direction())];
             Vec2 pos = person.position(frac);
             auto partp = std::begin(person), parte = std::end(person);
             for (; partp != parte; partp++) {
                 auto part = *partp;
                 s.m_array.add(
-                    s.m_sheet.get(part.sprite(), part.frame(), 0),
+                    s.m_sheet.get(part.sprite(), part.frame(), dir.index),
                     pos + part.offset(),
-                    Base::Orientation::NORMAL);
+                    dir.orient);
             }
         }
 
