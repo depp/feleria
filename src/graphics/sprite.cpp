@@ -14,8 +14,6 @@ namespace {
 
 const char SPRITE_MAGIC[16] = "Feleria Sprites";
 
-#include "data/sprite.array.hpp"
-
 struct FileGroupInfo {
     unsigned short w, h, offset;
 };
@@ -76,7 +74,7 @@ bool SpriteSheet::load() {
         GroupInfo gr { 0, 0, nullptr };
         std::size_t j;
         for (j = 0; j < gcount; j++) {
-            if (std::strcmp(SPRITE_NAMES[i], data_gnam[j]))
+            if (std::strcmp(Game::SPRITE_NAMES[i], data_gnam[j]))
                 continue;
             const auto &g = data_gifo[j];
             if (g.w == 0 || g.h == 0) {
@@ -130,13 +128,14 @@ void SpriteArray::clear() {
     m_array.clear();
 }
 
-void SpriteArray::add(const sg_sprite &sp, float x, float y,
+void SpriteArray::add(const sg_sprite &sp, Vec2 pos,
                       Base::Orientation orient) {
     using Base::Orientation;
     if (sp.w == 0) {
         return;
     }
 
+    float x = pos[0], y = pos[1];
     Vertex *data = m_array.insert(6);
 
     short tx0 = sp.x, tx1 = sp.x + sp.w;

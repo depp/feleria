@@ -2,13 +2,9 @@
    This file is part of Legend of Feleria.  Legend of Feleria is
    licensed under the terms of the 2-clause BSD license.  For more
    information, see LICENSE.txt. */
-#ifndef LD_GAME_SPRITE_HPP
-#define LD_GAME_SPRITE_HPP
+#include "sprite.hpp"
 namespace Game {
 
-#include "data/sprite.enum.hpp"
-
-extern const char SPRITE_NAMES[SPRITE_COUNT][16];
+#include "data/sprite.array.hpp"
 
 }
-#endif

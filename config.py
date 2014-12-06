@@ -49,6 +49,8 @@ game.cpp
 game.hpp
 person.cpp
 person.hpp
+sprite.cpp
+sprite.hpp
 ''')
 
 src.add(path='graphics', sources='''

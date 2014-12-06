@@ -6,9 +6,6 @@
 #include "system.hpp"
 #include "game/game.hpp"
 #include "game/person.hpp"
-#include "sg/sprite.h"
-
-#include "sg/sprite.h"
 namespace Graphics {
 
 System::System() { }
@@ -34,19 +31,15 @@ void System::draw(int width, int height, const Game::Game &game) {
 
         auto &s = m_sprite;
         s.m_array.clear();
-        static const int PART_GROUP[Game::PART_COUNT] = {
-            2, 2, 1, 2, 0, 3, 0
-        };
-        for (const auto &p : game.person()) {
-            Vec2 pos = Vec2::lerp(p.m_pos[0], p.m_pos[1], frac);
-            for (int i = 0; i < Game::PART_COUNT; i++) {
-                int spi = p.m_part[i];
-                if (spi < 0)
-                    continue;
-                int fr = p.m_frame[PART_GROUP[i]];
-                const auto &sp = s.m_sheet.get(
-                    static_cast<Game::Sprite>(spi), fr, 0);
-                s.m_array.add(sp, pos[0], pos[1], Base::Orientation::NORMAL);
+        for (const auto &person : game.person()) {
+            Vec2 pos = person.position(frac);
+            auto partp = std::begin(person), parte = std::end(person);
+            for (; partp != parte; partp++) {
+                auto part = *partp;
+                s.m_array.add(
+                    s.m_sheet.get(part.sprite(), part.frame(), 0),
+                    pos + part.offset(),
+                    Base::Orientation::NORMAL);
             }
         }
 

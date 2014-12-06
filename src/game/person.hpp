@@ -29,6 +29,53 @@ enum Group {
     FACE, // face
 };
 
+// Information about a part of a person.
+class PartSprite {
+private:
+    unsigned m_data;
+
+public:
+    // Create a part of a person.
+    /*
+      Broken, needs to set offx & offy
+    static PartSprite create(Sprite sprite, int frame) {
+        PartSprite s;
+        s.m_data = ((static_cast<int>(sprite) & 0xff) |
+                    ((frame & 0xff) << 8));
+        return s;
+    }
+    */
+
+    // Create a part of a person with an offset.
+    static PartSprite create(Sprite sprite, int frame, int offx, int offy) {
+        PartSprite s;
+        s.m_data = ((static_cast<int>(sprite) & 0xff) |
+                    ((frame & 0xff) << 8) |
+                    (((offx + 8) & 0xf) << 16) |
+                    (((offy + 8) & 0xf) << 20));
+        return s;
+
+    }
+
+    // Get the sprite group for this part.
+    Sprite sprite() const {
+        return static_cast<Sprite>(m_data & 0xff);
+    }
+
+    // Get the current frame for this part.
+    int frame() const {
+        return (m_data >> 8) & 0xff;
+    }
+
+    // Get the offset at which the sprite should be rendered.
+    Vec2 offset() const {
+        return Vec2 {{
+            (float) ((int) ((m_data >> 16) & 0xf) - 8),
+            (float) ((int) ((m_data >> 20) & 0xf) - 8)
+        }};
+    }
+};
+
 /// A person in the game, in a broad sense.  This includes monsters,
 /// the player, and NPCs.
 class Person {
@@ -38,6 +85,7 @@ public:
         FL_ATTACK = 01
     };
 
+private:
     // Input flags.
     unsigned m_in_flags;
     // Movement input.
@@ -45,11 +93,14 @@ public:
 
     // The current facing direction.
     Direction m_dir;
+
     // Sprites for each part of the person.
     int m_part[PART_COUNT];
-    // Active frame for each animation group, with an extra entry at
-    // the beginning set to zero.
-    int m_frame[GROUP_COUNT];
+
+    // Expanded version of the sprites, recalculated each update.
+    PartSprite m_sprite[PART_COUNT];
+    int m_spritecount;
+
     // Current and previous position.
     Vec2 m_pos[2];
     // Current velocity.
@@ -59,22 +110,41 @@ public:
     Vec2 m_steppos;
     // The current frame of the walking animation.
     int m_stepframe;
+    // The time at which walking will revert to standing.
+    double m_standtime;
 
+public:
     // Create a person at the given location.
     Person(Vec2 pos, Direction dir);
 
     // Update the person's state.  Should be called exactly once per
     // game update tick.
-    void update(float dtime);
+    void update(double abstime, float dtime);
+
+    // Set the input controlling this person's movement.
+    void set_input(Vec2 move, unsigned flags) {
+        m_in_flags = flags;
+        m_in_move = move;
+    };
 
     // Set the apperance of a part of the person.
     void set_part(Part part, Sprite sprite) {
         m_part[static_cast<int>(part)] = static_cast<int>(sprite);
     }
 
-    // Set the frame of an animation group.
-    void set_frame(Group group, int frame) {
-        m_frame[static_cast<int>(group)] = frame;
+    // Get the current position.
+    Vec2 position(float frac) const {
+        return Vec2::lerp(m_pos[0], m_pos[1], frac);
+    }
+
+    // Get an iterator to the first sprite in the person.
+    const PartSprite *begin() const {
+        return m_sprite;
+    }
+
+    // Get an iterator to the last sprite in the person.
+    const PartSprite *end() const {
+        return m_sprite + m_spritecount;
     }
 };
 

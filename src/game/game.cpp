@@ -41,21 +41,32 @@ void Game::update(double time) {
     }
 
     double dtime = m_dt, start_time = m_frametime;
+    if (start_time <= 0.0) {
+        m_frametime = time;
+        m_curtime = time;
+        advance(time, (float) dtime,
+                m_input.read(0.0, time, true));
+        return;
+    }
+
     while (true) {
         double end_time = start_time + dtime;
         if (end_time > time)
             break;
-        auto input = m_input.read(start_time, end_time, true);
-        m_person[0].m_in_flags = 0;
-        m_person[0].m_in_move = input.move;
+        advance(end_time, (float) dtime,
+                m_input.read(start_time, end_time, true));
         m_frametime = start_time = end_time;
-
-        for (auto &p : m_person) {
-            p.update((float) dtime);
-        }
     }
 
     m_curtime = time;
+}
+
+void Game::advance(double abstime, float dtime,
+                   const Control::FrameInput &input) {
+    m_person[0].set_input(input.move, 0);
+    for (auto &p : m_person) {
+        p.update(abstime, dtime);
+    }
 }
 
 }

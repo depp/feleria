@@ -4,6 +4,7 @@
    information, see LICENSE.txt. */
 #ifndef LD_GRAPHICS_SPRITE_HPP
 #define LD_GRAPHICS_SPRITE_HPP
+#include "defs.hpp"
 #include "base/array.hpp"
 #include "base/file.hpp"
 #include "base/orientation.hpp"
@@ -58,9 +59,8 @@ public:
 
     /// Clear the array.
     void clear();
-    /// Add a sprite (tex) at the given coordinate.
-    void add(const sg_sprite &sp, float x, float y,
-             Base::Orientation orient);
+    /// Add a sprite at the given coordinate.
+    void add(const sg_sprite &sp, Vec2 pos, Base::Orientation orient);
     /// Upload the array data.
     void upload(GLuint usage);
     /// Bind the OpenGL attribute.

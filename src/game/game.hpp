@@ -8,6 +8,9 @@
 #include "control.hpp"
 #include <vector>
 namespace Game {
+namespace Control {
+struct FrameInput;
+}
 class Person;
 
 class Game {
@@ -38,6 +41,11 @@ public:
     const std::vector<Person> &person() const {
         return m_person;
     }
+
+private:
+    void advance(double abstime, float dtime,
+                 const Control::FrameInput &input);
+
 };
 
 }
