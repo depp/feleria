@@ -150,7 +150,7 @@ void SpriteArray::add(const sg_sprite &sp, float x, float y,
     data[5].tx = tx1; data[5].ty = ty1;
 
     float rx0 = (float) -sp.cx, rx1 = (float) (sp.w - sp.cx);
-    float ry0 = (float) -sp.cy, ry1 = (float) (sp.h - sp.cy);
+    float ry0 = (float) (sp.cy - sp.h), ry1 = (float) +sp.cy;
     float vx[4], vy[4];
     switch (orient) {
     case Orientation::NORMAL:
