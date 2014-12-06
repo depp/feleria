@@ -7,6 +7,7 @@
 #include "sg/event.h"
 #include "sg/keycode.h"
 #include <algorithm>
+#include <cassert>
 namespace Game {
 namespace Control {
 
@@ -69,7 +70,7 @@ float Input::State::get_axis(Button negative, Button positive) const {
 
 Vec2 Input::State::get_move() const {
     Vec2 keymove { get_axis(Button::MOVE_LEFT, Button::MOVE_RIGHT),
-                   get_axis(Button::MOVE_UP, Button::MOVE_DOWN) };
+                   get_axis(Button::MOVE_DOWN, Button::MOVE_UP) };
     float mag2 = keymove.mag2();
     if (mag2 > 1.0f)
         keymove *= 1.0f / std::sqrt(mag2);
@@ -143,16 +144,17 @@ void Input::button_release(double time, int source, int ident) {
 }
 
 FrameInput Input::read(double start_time, double end_time, bool do_remove) {
-    auto sts = std::begin(m_state) + m_readpos,
-        ste = std::end(m_state), stp = sts;
-    unsigned new_buttons = 0, all_buttons = sts->buttons,
-        cur_buttons = sts->buttons;
+    assert(m_readpos < m_state.size());
+    auto sts = std::begin(m_state),
+        ste = std::end(m_state), stp = sts + m_readpos;
+    unsigned new_buttons = 0, all_buttons = stp->buttons,
+        cur_buttons = stp->buttons;
     double cur_time = start_time;
     Vec2 move = Vec2::zero();
     while (true) {
         Vec2 smove = stp->get_move();
         stp++;
-        if (stp == ste) {
+        if (stp == ste || stp->time > end_time) {
             float sdelta = (float) (end_time - cur_time);
             move += smove * sdelta;
             break;

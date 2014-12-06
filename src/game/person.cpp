@@ -7,8 +7,8 @@
 namespace Game {
 
 namespace {
-const float MOVE_SPEED   = 5.0f;    // unit/s
-const float ACCELERATION = 10.0f;   // unit/s^2
+const float MOVE_SPEED   = 50.0f;    // unit/s
+const float ACCELERATION = 200.0f;   // unit/s^2
 }
 
 Person::Person(Vec2 pos, Direction dir) {
@@ -24,7 +24,6 @@ Person::Person(Vec2 pos, Direction dir) {
 }
 
 void Person::update(float dtime) {
-
     // Calculate velocity.
     Vec2 v0, v1;
     {
