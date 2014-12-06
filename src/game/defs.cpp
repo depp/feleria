@@ -3,6 +3,7 @@
    licensed under the terms of the 2-clause BSD license.  For more
    information, see LICENSE.txt. */
 #include <cstdlib>
+#include "defs.hpp"
 namespace Game {
 
 Direction direction_from_vec(Vec2 dir) {

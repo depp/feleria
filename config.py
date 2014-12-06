@@ -47,8 +47,8 @@ defs.cpp
 defs.hpp
 game.cpp
 game.hpp
-move.cpp
-move.hpp
+person.cpp
+person.hpp
 ''')
 
 src.add(path='graphics', sources='''

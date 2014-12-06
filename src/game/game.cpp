@@ -4,6 +4,7 @@
    information, see LICENSE.txt. */
 #include "game.hpp"
 #include "control.hpp"
+#include "person.hpp"
 namespace Game {
 
 namespace {
@@ -12,7 +13,10 @@ const double MAX_UPDATE = 1.0;
 }
 
 Game::Game()
-    : m_frametime(0.0), m_curtime(0.0), m_dt(DEFAULT_DT) { }
+    : m_frametime(0.0), m_curtime(0.0), m_dt(DEFAULT_DT) {
+    m_person.push_back(Person(Vec2{{100.0f, 100.0f}}, Direction::LEFT));
+    m_person.push_back(Person(Vec2{{116.0f, 108.0f}}, Direction::RIGHT));
+}
 
 Game::~Game() {}
 
@@ -38,8 +42,13 @@ void Game::update(double time) {
         if (end_time > time)
             break;
         auto input = m_input.read(start_time, end_time, true);
-        m_move.update((float) dtime, input);
+        m_person[0].m_in_flags = 0;
+        m_person[0].m_in_move = input.move;
         m_frametime = start_time = end_time;
+
+        for (auto &p : m_person) {
+            p.update((float) dtime);
+        }
     }
 
     m_curtime = time;

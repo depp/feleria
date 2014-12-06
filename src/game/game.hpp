@@ -5,24 +5,39 @@
 #ifndef LD_GAME_GAME_HPP
 #define LD_GAME_GAME_HPP
 #include "defs.hpp"
-#include "move.hpp"
 #include "control.hpp"
+#include <vector>
 namespace Game {
+class Person;
 
 class Game {
-public:
+private:
     double m_frametime, m_curtime, m_dt;
-    Move m_move;
     Control::Input m_input;
     Control::Bindings m_bindings;
+    std::vector<Person> m_person;
 
+public:
     Game();
     Game(const Game &) = delete;
     ~Game();
     Game &operator=(const Game &) = delete;
 
+    /// Handle input from the user.
     void handle_event(const sg_event &evt);
+
+    /// Update the world.
     void update(double time);
+
+    /// Get the fraction of a frame.
+    float frame_frac() const {
+        return (float) ((m_curtime - m_frametime) / m_dt);
+    }
+
+    /// Get all persons in the game.
+    const std::vector<Person> &person() const {
+        return m_person;
+    }
 };
 
 }

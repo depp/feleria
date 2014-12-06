@@ -5,7 +5,7 @@
 #include "defs.hpp"
 #include "system.hpp"
 #include "game/game.hpp"
-
+#include "game/person.hpp"
 #include "sg/sprite.h"
 namespace Graphics {
 
@@ -19,16 +19,17 @@ void System::load() {
 }
 
 void System::draw(int width, int height, const Game::Game &game) {
-    (void) &game;
     glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    float frac = game.frame_frac();
     SpriteArray arr;
     const auto &sp = m_sprite.get(Game::Sprite::GOBLIN_BOT, 2, 0);
-    arr.add(sp, 100, 100);
-    arr.add(sp, 150, 100);
-    arr.add(sp, 150, 150);
+    for (const auto &p : game.person()) {
+        Vec2 pos = Vec2::lerp(p.m_pos[0], p.m_pos[1], frac);
+        arr.add(sp, (int) std::floor(pos[0]), (int) std::floor(pos[1]));
+    }
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
