@@ -4,7 +4,9 @@
    information, see LICENSE.txt. */
 #include "sg/entry.h"
 #include "sg/event.h"
+#include "sg/keycode.h"
 #include "sg/mixer.h"
+#include "sg/record.h"
 #include "game/game.hpp"
 #include "graphics/system.hpp"
 
@@ -34,6 +36,22 @@ void sg_game_event(union sg_event *evt) {
         }
         graphics = new Graphics::System;
         graphics->load();
+        break;
+
+    case SG_EVENT_KDOWN:
+        switch (evt->key.key) {
+        case KEY_Backslash:
+            sg_record_screenshot();
+            return;
+
+        case KEY_F10:
+            sg_record_start(evt->common.time);
+            return;
+
+        case KEY_F11:
+            sg_record_stop();
+            return;
+        }
         break;
 
     default:
