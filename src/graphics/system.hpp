@@ -15,8 +15,14 @@ namespace Graphics {
 /// The graphics system, responsible for drawing everything.
 class System {
 private:
-    Base::Program<Shader::Sprite> m_prog_sprite;
-    SpriteSheet m_sprite;
+    struct SysSprite {
+        Base::Program<Shader::Sprite> m_prog;
+        SpriteSheet m_sheet;
+        SpriteArray m_array;
+        GLuint m_buffer;
+    };
+
+    SysSprite m_sprite;
 
 public:
     System();

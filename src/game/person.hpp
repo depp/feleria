@@ -8,6 +8,26 @@
 #include "sprite.hpp"
 namespace Game {
 
+// Parts of a person.
+static const int PART_COUNT = 7;
+enum class Part {
+    ITEM1,
+    ITEM2,
+    BOTTOM,
+    TOP,
+    HEAD,
+    FACE,
+    HAT
+};
+
+// Animation groups
+static const int GROUP_COUNT = 3;
+enum Group {
+    LEGS, // bottom
+    TORSO, // items and top
+    FACE, // face
+};
+
 /// A person in the game, in a broad sense.  This includes monsters,
 /// the player, and NPCs.
 class Person {
@@ -15,26 +35,6 @@ public:
     // Flags for updating a person.
     enum {
         FL_ATTACK = 01
-    };
-
-    // Parts of a person.
-    static const int PART_COUNT = 7;
-    enum class Part {
-        ITEM1,
-        ITEM2,
-        BOTTOM,
-        TOP,
-        HEAD,
-        FACE,
-        HAT
-    };
-
-    // Animation groups
-    static const int GROUP_COUNT = 3;
-    enum Group {
-        LEGS, // bottom
-        TORSO, // items and top
-        FACE, // face
     };
 
     // Input flags.
@@ -61,10 +61,14 @@ public:
     void update(float dtime);
 
     // Set the apperance of a part of the person.
-    void set_part(Part part, Sprite sprite);
+    void set_part(Part part, Sprite sprite) {
+        m_part[static_cast<int>(part)] = static_cast<int>(sprite);
+    }
 
     // Set the frame of an animation group.
-    void set_frame(Group group, int frame);
+    void set_frame(Group group, int frame) {
+        m_frame[static_cast<int>(group)] = frame;
+    }
 };
 
 }
