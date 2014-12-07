@@ -75,41 +75,10 @@ void System::draw(int width, int height, const Game::Game &game) {
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Emit game geometry
-    {
-        // float frac = game.frame_frac();
-
-        auto &s = m_sprite;
-        s.array.clear();
-        for (const auto &person : game.person()) {
-            auto dir = DIRECTION_INFO[static_cast<int>(person.direction())];
-            SpritePart parts[Game::PART_COUNT], *op = parts;
-            auto partp = std::begin(person), parte = std::end(person);
-            for (; partp != parte; partp++) {
-                auto part = *partp;
-                *op++ = SpritePart {
-                    &s.sheet.get(part.sprite(), part.frame(), dir.index),
-                    part.offset()
-                };
-            }
-            s.array.add(
-                parts, op - parts,
-                Vec3::zero(), // person.position(frac),
-                Vec3{{1.0f, 0.0f, 0.0f}},
-                Vec3{{0.0f, 0.0f, 1.0f}},
-                dir.orient);
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
-        s.array.upload(GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        sg_opengl_checkerror("System::draw upload sprite");
-    }
-
     // Calculate perspective.
     Mat4 projection;
     Mat4 worldview;
+    Quat camera_angle;
     {
         // Reference aspect ratio.
         const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
@@ -146,7 +115,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         const double elevation = 40.0;
 
         {
-            Quat angle =
+            camera_angle =
                 Quat::rotation(
                     Vec3{{0.0f, 0.0f, 1.0f}},
                     (std::atan(1.0) / 45.0) * (180.0 - azimuth)) *
@@ -154,11 +123,45 @@ void System::draw(int width, int height, const Game::Game &game) {
                     Vec3{{1.0f, 0.0f, 0.0f}},
                     (std::atan(1.0) / 45.0) * (90.0 - elevation));
             Vec3 target {{ 0.0f, 0.0f, 2.0f }};
-            Vec3 dir = angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
+            Vec3 dir = camera_angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
             Vec3 pos = target + dir * (float) distance;
-            worldview = Mat4::rotation(angle.conjugate()) *
+            worldview = Mat4::rotation(camera_angle.conjugate()) *
                 Mat4::translation(-pos);
         }
+    }
+
+    // Emit game geometry
+    {
+        // float frac = game.frame_frac();
+        Vec3 right = camera_angle.transform(Vec3{{1.0f, 0.0f, 0.0f}});
+        Vec3 up = camera_angle.transform(Vec3{{0.0f, 1.0f, 0.0f}});
+
+        auto &s = m_sprite;
+        s.array.clear();
+        for (const auto &person : game.person()) {
+            auto dir = DIRECTION_INFO[static_cast<int>(person.direction())];
+            SpritePart parts[Game::PART_COUNT], *op = parts;
+            auto partp = std::begin(person), parte = std::end(person);
+            for (; partp != parte; partp++) {
+                auto part = *partp;
+                *op++ = SpritePart {
+                    &s.sheet.get(part.sprite(), part.frame(), dir.index),
+                    part.offset()
+                };
+            }
+            s.array.add(
+                parts, op - parts,
+                Vec3::zero(), // person.position(frac),
+                right,
+                up,
+                dir.orient);
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
+        s.array.upload(GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        sg_opengl_checkerror("System::draw upload sprite");
     }
 
     // Draw world.
