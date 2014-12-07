@@ -52,6 +52,9 @@ struct World {
     // Uniforms
     GLint u_modelview;
     GLint u_projection;
+    GLint u_normalmat;
+    GLint u_light_dir;
+    GLint u_light_color;
 };
 
 }

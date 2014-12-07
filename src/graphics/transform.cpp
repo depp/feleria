@@ -40,4 +40,3 @@ Transform &operator*=(Transform &x, const Transform &y) {
 }
 
 }
-

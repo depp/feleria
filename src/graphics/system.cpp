@@ -25,6 +25,20 @@ const DirectionInfo DIRECTION_INFO[4] = {
     { 0, Orientation::NORMAL },
 };
 
+const int LIGHT_COUNT = 4;
+const float LIGHT_DIR[LIGHT_COUNT][3] = {
+    { 0.0f, 0.0f, 1.0f },
+    { 0.0f, 1.0f, 0.0f },
+    { 1.0f, 0.0f, 0.0f },
+    {-1.0f, 0.0f, 0.0f }
+};
+const float LIGHT_COLOR[LIGHT_COUNT][3] = {
+    { 0.5f, 0.5f, 0.5f },
+    { 1.0f, 0.5f, 0.5f },
+    { 0.5f, 1.0f, 0.5f },
+    { 0.5f, 0.5f, 1.0f }
+};
+
 }
 
 System::System() { }
@@ -47,14 +61,10 @@ void System::load(const Game::Game &game) {
         const auto &w = game.world();
         auto data = w.vertex_data();
         auto size = w.vertex_size();
-        const unsigned *p = reinterpret_cast<const unsigned *>(data);
-        for (int i = 0; i < 10; i++) {
-            Log::debug("Vertex: %08x", p[i*3]);
-        }
         glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
         glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        s.count = size / 12;
+        s.count = size / 8;
         s.size = w.size();
     }
 }
@@ -92,14 +102,14 @@ void System::draw(int width, int height, const Game::Game &game) {
 
     // Calculate perspective.
     Mat4 projection;
-    Transform worldview;
+    Mat4 worldview;
     {
         // Reference aspect ratio.
         const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
         // 35mm equivalent focal length.
         const double focal = 55.0;
         // Width of the subject.
-        const double subject_size = 64.0;
+        const double subject_size = 64.0 * 1.25;
 
         double distance;
 
@@ -136,13 +146,11 @@ void System::draw(int width, int height, const Game::Game &game) {
                 Quat::rotation(
                     Vec3{{1.0f, 0.0f, 0.0f}},
                     (std::atan(1.0) / 45.0) * (90.0 - elevation));
-            Vec3 target {{ 0.5f * (float) m_world.size[0],
-                           0.5f * (float) m_world.size[1],
-                           0.0f }};
+            Vec3 target = Vec3::zero();
             Vec3 dir = angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
             Vec3 pos = target + dir * (float) distance;
-            worldview = Transform::rotation(angle.conjugate()) *
-                Transform::translation(-pos);
+            worldview = Mat4::rotation(angle.conjugate()) *
+                Mat4::translation(-pos);
         }
     }
 
@@ -157,29 +165,30 @@ void System::draw(int width, int height, const Game::Game &game) {
         if (prog->a_vert >= 0) {
             glEnableVertexAttribArray(prog->a_vert);
             glVertexAttribPointer(
-                prog->a_vert, 3, GL_UNSIGNED_BYTE, GL_FALSE,
-                12, nullptr);
-        }
-        if (prog->a_color >= 0) {
-            glEnableVertexAttribArray(prog->a_color);
-            glVertexAttribPointer(
-                prog->a_color, 3, GL_UNSIGNED_BYTE, GL_TRUE,
-                12, reinterpret_cast<void *>(4));
+                prog->a_vert, 4, GL_INT_2_10_10_10_REV, GL_FALSE,
+                8, nullptr);
         }
         if (prog->a_normal >= 0) {
             glEnableVertexAttribArray(prog->a_normal);
             glVertexAttribPointer(
-                prog->a_normal, 3, GL_INT_2_10_10_10_REV, GL_FALSE,
-                12, reinterpret_cast<void *>(8));
+                prog->a_normal, 4, GL_INT_2_10_10_10_REV, GL_TRUE,
+                8, reinterpret_cast<void *>(4));
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        Transform modelview = worldview *
-            Transform::scale(Vec3{{1.0f, 1.0f, 0.03f}});
+        float wscale = 64.0f / 512.0f;
+        float wvscale = 0.5f;
+        Transform xform = Transform::scale(Vec3{{
+                    wscale, wscale, wvscale * wscale }});
+        xform.view = worldview * xform.view;
         glUniformMatrix4fv(prog->u_modelview, 1, GL_FALSE,
-                           modelview.view.data());
+                           xform.view.data());
         glUniformMatrix4fv(prog->u_projection, 1, GL_FALSE,
                            projection.data());
+        glUniformMatrix3fv(prog->u_normalmat, 1, GL_FALSE,
+                           xform.normal.data());
+        glUniform3fv(prog->u_light_dir, LIGHT_COUNT, LIGHT_DIR[0]);
+        glUniform3fv(prog->u_light_color, LIGHT_COUNT, LIGHT_COLOR[0]);
 
         glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
