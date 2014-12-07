@@ -9,5 +9,5 @@ const char SPRITE_NAMES[SPRITE_COUNT][16] = {
     "hero_bot",
     "hero_head",
     "hero_top",
-    "mage_bot"
+    "item_sword"
 };

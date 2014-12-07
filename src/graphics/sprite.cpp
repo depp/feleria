@@ -148,6 +148,7 @@ void SpriteArray::add(const sg_sprite &sp, Vec2 pos,
     data[4].tx = tx1; data[4].ty = ty0;
     data[5].tx = tx1; data[5].ty = ty1;
 
+    // FIXME: most of these are wrong
     float rx0 = (float) -sp.cx, rx1 = (float) (sp.w - sp.cx);
     float ry0 = (float) (sp.cy - sp.h), ry1 = (float) +sp.cy;
     float vx[4], vy[4];
@@ -160,22 +161,22 @@ void SpriteArray::add(const sg_sprite &sp, Vec2 pos,
         break;
 
     case Orientation::ROTATE_90:
-        vx[2] = vx[3] = x + ry0;
-        vx[0] = vx[1] = x + ry1;
+        vx[2] = vx[3] = x - ry0;
+        vx[0] = vx[1] = x - ry1;
         vy[2] = vy[0] = y + rx0;
         vy[3] = vy[1] = y + rx1;
         break;
 
     case Orientation::ROTATE_180:
-        vx[3] = vx[1] = x + rx0;
-        vx[2] = vx[0] = x + rx1;
-        vy[3] = vy[2] = y + ry0;
-        vy[1] = vy[0] = y + ry1;
+        vx[3] = vx[1] = x - rx0;
+        vx[2] = vx[0] = x - rx1;
+        vy[3] = vy[2] = y - ry0;
+        vy[1] = vy[0] = y - ry1;
         break;
 
     case Orientation::ROTATE_270:
-        vx[1] = vx[0] = x + ry0;
-        vx[3] = vx[2] = x + ry1;
+        vx[1] = vx[0] = x - ry0;
+        vx[3] = vx[2] = x - ry1;
         vy[1] = vy[3] = y + rx0;
         vy[0] = vy[2] = y + rx1;
         break;
@@ -183,20 +184,20 @@ void SpriteArray::add(const sg_sprite &sp, Vec2 pos,
     case Orientation::FLIP_VERTICAL:
         vx[0] = vx[2] = x + rx0;
         vx[1] = vx[3] = x + rx1;
-        vy[0] = vy[1] = y + ry1;
-        vy[2] = vy[3] = y + ry0;
+        vy[0] = vy[1] = y - ry1;
+        vy[2] = vy[3] = y - ry0;
         break;
 
     case Orientation::TRANSPOSE_2:
-        vx[2] = vx[3] = x + ry0;
-        vx[0] = vx[1] = x + ry1;
-        vy[2] = vy[0] = y + rx1;
-        vy[3] = vy[1] = y + rx0;
+        vx[2] = vx[3] = x - ry0;
+        vx[0] = vx[1] = x - ry1;
+        vy[2] = vy[0] = y - rx1;
+        vy[3] = vy[1] = y - rx0;
         break;
 
     case Orientation::FLIP_HORIZONTAL:
-        vx[3] = vx[1] = x + rx0;
-        vx[2] = vx[0] = x + rx1;
+        vx[3] = vx[1] = x - rx1;
+        vx[2] = vx[0] = x - rx0;
         vy[3] = vy[2] = y + ry1;
         vy[1] = vy[0] = y + ry0;
         break;

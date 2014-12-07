@@ -10,5 +10,5 @@ enum class Sprite {
     HERO_BOT,
     HERO_HEAD,
     HERO_TOP,
-    MAGE_BOT
+    ITEM_SWORD
 };

@@ -39,9 +39,9 @@ const WalkFrame WALK_FRAME[WALK_COUNT + 1] = {
 
 #define PARTS_BODY Part::BOTTOM, Part::TOP, Part::HEAD, Part::FACE, Part::HAT
 const Part PART_ORDER[4][PART_COUNT] = {
-    { PARTS_BODY, Part::ITEM1, Part::ITEM2 }, // Right
+    { Part::ITEM1, PARTS_BODY, Part::ITEM2 }, // Right
     { Part::ITEM2, Part::ITEM1, PARTS_BODY }, // Up
-    { PARTS_BODY, Part::ITEM1, Part::ITEM2 }, // Left
+    { Part::ITEM1, PARTS_BODY, Part::ITEM2 }, // Left
     { PARTS_BODY, Part::ITEM1, Part::ITEM2 }  // Down
 };
 #undef PARTS_BODY

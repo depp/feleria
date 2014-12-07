@@ -19,6 +19,7 @@ Game::Game()
     p.set_part(Part::BOTTOM, Sprite::GIRL_BOT);
     p.set_part(Part::TOP, Sprite::GIRL_TOP);
     p.set_part(Part::HEAD, Sprite::GIRL_HEAD);
+    p.set_part(Part::ITEM1, Sprite::ITEM_SWORD);
     m_person.push_back(Person(Vec2{{116.0f, 108.0f}}, Direction::RIGHT));
 }
 
