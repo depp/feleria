@@ -5,6 +5,79 @@
 #include "mat.hpp"
 namespace Base {
 
+/* ======================================================================
+   3x3 matrix
+   ====================================================================== */
+
+Vec3 Mat3::transform(Vec3 v) const {
+    return Vec3 {
+        v[0] * m[0][0] + v[1] * m[1][0] + v[2] * m[2][0],
+        v[0] * m[0][1] + v[1] * m[1][1] + v[2] * m[2][1],
+        v[0] * m[0][2] + v[1] * m[1][2] + v[2] * m[2][2]
+    };
+}
+
+Mat3 Mat3::identity() {
+    return Mat3 { {
+        { 1.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 0.0f, 1.0f },
+    } };
+}
+
+Mat3 Mat3::scale(float a) {
+    return Mat3 { {
+        {    a, 0.0f, 0.0f },
+        { 0.0f,    a, 0.0f },
+        { 0.0f, 0.0f,    a },
+    } };
+}
+
+Mat3 Mat3::scale(Vec3 v) {
+    return Mat3 { {
+        { v[0], 0.0f, 0.0f },
+        { 0.0f, v[1], 0.0f },
+        { 0.0f, 0.0f, v[2] },
+    } };
+}
+
+Mat3 Mat3::rotation(Quat q) {
+    float w = q[0], x = q[1], y = q[2], z = q[3];
+    return Mat3 { {
+        { 1.0f - 2.0f*y*y - 2.0f*z*z,
+          2.0f*x*y + 2.0f*w*z,
+          2.0f*z*x - 2.0f*w*y },
+        { 2.0f*x*y - 2.0f*w*z,
+          1.0f - 2.0f*z*z - 2.0f*x*x,
+          2.0f*y*z + 2.0f*w*x },
+        { 2.0f*z*x + 2.0f*w*y,
+          2.0f*y*z - 2.0f*w*x,
+          1.0f - 2.0f*x*x - 2.0f*y*y },
+    } };
+}
+
+Mat3 operator*(const Mat3 &x, const Mat3 &y) {
+    Mat3 z;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            z.m[j][i] =
+                x.m[0][i] * y.m[j][0] +
+                x.m[1][i] * y.m[j][1] +
+                x.m[2][i] * y.m[j][2];
+        }
+    }
+    return z;
+}
+
+Mat3 &operator*=(Mat3 &x, const Mat3 &y) {
+    x = x * y;
+    return x;
+}
+
+/* ======================================================================
+   4x4 matrix
+   ====================================================================== */
+
 Vec3 Mat4::transform(Vec3 v) const {
     return Vec3 {
         v[0] * m[0][0] + v[1] * m[1][0] + v[2] * m[2][0] + m[3][0],
@@ -28,6 +101,24 @@ Mat4 Mat4::translation(Vec3 v) {
         { 0.0f, 1.0f, 0.0f, 0.0f },
         { 0.0f, 0.0f, 1.0f, 0.0f },
         { v[0], v[1], v[2], 1.0f }
+    } };
+}
+
+Mat4 Mat4::scale(float a) {
+    return Mat4 { {
+        {    a, 0.0f, 0.0f, 0.0f },
+        { 0.0f,    a, 0.0f, 0.0f },
+        { 0.0f, 0.0f,    a, 0.0f },
+        { 0.0f, 0.0f, 0.0f, 1.0f },
+    } };
+}
+
+Mat4 Mat4::scale(Vec3 v) {
+    return Mat4 { {
+        { v[0], 0.0f, 0.0f, 0.0f },
+        { 0.0f, v[1], 0.0f, 0.0f },
+        { 0.0f, 0.0f, v[2], 0.0f },
+        { 0.0f, 0.0f, 0.0f, 1.0f },
     } };
 }
 

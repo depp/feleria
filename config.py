@@ -63,6 +63,8 @@ sprite.cpp
 sprite.hpp
 system.cpp
 system.hpp
+transform.cpp
+transform.hpp
 ''')
 
 def configure(build, sgmod):

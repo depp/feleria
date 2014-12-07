@@ -4,6 +4,7 @@
    information, see LICENSE.txt. */
 #include "defs.hpp"
 #include "system.hpp"
+#include "transform.hpp"
 #include "game/game.hpp"
 #include "game/person.hpp"
 namespace Graphics {
@@ -90,7 +91,8 @@ void System::draw(int width, int height, const Game::Game &game) {
     }
 
     // Calculate perspective.
-    Mat4 projection, worldview;
+    Mat4 projection;
+    Transform worldview;
     {
         // Reference aspect ratio.
         const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
@@ -139,8 +141,8 @@ void System::draw(int width, int height, const Game::Game &game) {
                            0.0f }};
             Vec3 dir = angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
             Vec3 pos = target + dir * (float) distance;
-            worldview = Mat4::rotation(angle.conjugate()) *
-                Mat4::translation(-pos);
+            worldview = Transform::rotation(angle.conjugate()) *
+                Transform::translation(-pos);
         }
     }
 
@@ -172,12 +174,18 @@ void System::draw(int width, int height, const Game::Game &game) {
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+        Transform modelview = worldview *
+            Transform::scale(Vec3{{1.0f, 1.0f, 0.03f}});
         glUniformMatrix4fv(prog->u_modelview, 1, GL_FALSE,
-                           worldview.data());
+                           modelview.view.data());
         glUniformMatrix4fv(prog->u_projection, 1, GL_FALSE,
                            projection.data());
 
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
         glDrawArrays(GL_TRIANGLES, 0, s.count);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_DEPTH_TEST);
 
         sg_opengl_checkerror("System::draw world");
     }

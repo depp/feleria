@@ -16,6 +16,7 @@ using ::Base::Log;
 using ::Base::Vec3;
 using ::Base::Vec2;
 using ::Base::Quat;
+using ::Base::Mat3;
 using ::Base::Mat4;
 using ::Base::IVec2;
 }
