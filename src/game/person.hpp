@@ -35,17 +35,6 @@ private:
     unsigned m_data;
 
 public:
-    // Create a part of a person.
-    /*
-      Broken, needs to set offx & offy
-    static PartSprite create(Sprite sprite, int frame) {
-        PartSprite s;
-        s.m_data = ((static_cast<int>(sprite) & 0xff) |
-                    ((frame & 0xff) << 8));
-        return s;
-    }
-    */
-
     // Create a part of a person with an offset.
     static PartSprite create(Sprite sprite, int frame, int offx, int offy) {
         PartSprite s;
