@@ -19,6 +19,7 @@ Graphics::System *graphics;
 
 void sg_game_init(void) {
     game = new Game::Game;
+    game->load();
 }
 
 void sg_game_destroy(void) {}
@@ -35,7 +36,7 @@ void sg_game_event(union sg_event *evt) {
             graphics = nullptr;
         }
         graphics = new Graphics::System;
-        graphics->load();
+        graphics->load(*game);
         break;
 
     case SG_EVENT_KDOWN:

@@ -16,13 +16,25 @@ namespace Graphics {
 class System {
 private:
     struct SysSprite {
-        Base::Program<Shader::Sprite> m_prog;
-        SpriteSheet m_sheet;
-        SpriteArray m_array;
-        GLuint m_buffer;
+        Base::Program<Shader::Sprite> prog;
+        SpriteSheet sheet;
+        SpriteArray array;
+        GLuint buffer;
+
+        SysSprite() : buffer(0) {}
+    };
+
+    struct SysWorld {
+        Base::Program<Shader::World> prog;
+        GLuint buffer;
+        GLsizei count;
+        IVec2 size;
+
+        SysWorld() : buffer(0), size(IVec2::zero()) {}
     };
 
     SysSprite m_sprite;
+    SysWorld m_world;
 
 public:
     System();
@@ -31,7 +43,7 @@ public:
     System &operator=(const System &) = delete;
 
     /// Load all graphical assets.
-    void load();
+    void load(const Game::Game &game);
     /// Draw the game's graphics.
     void draw(int width, int height, const Game::Game &game);
 };

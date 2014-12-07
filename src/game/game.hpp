@@ -6,6 +6,7 @@
 #define LD_GAME_GAME_HPP
 #include "defs.hpp"
 #include "control.hpp"
+#include "world.hpp"
 #include <vector>
 namespace Game {
 namespace Control {
@@ -18,6 +19,8 @@ private:
     double m_frametime, m_curtime, m_dt;
     Control::Input m_input;
     Control::Bindings m_bindings;
+
+    World m_world;
     std::vector<Person> m_person;
 
 public:
@@ -25,6 +28,9 @@ public:
     Game(const Game &) = delete;
     ~Game();
     Game &operator=(const Game &) = delete;
+
+    /// Load all resources.
+    void load();
 
     /// Handle input from the user.
     void handle_event(const sg_event &evt);
@@ -35,6 +41,11 @@ public:
     /// Get the fraction of a frame.
     float frame_frac() const {
         return (float) ((m_curtime - m_frametime) / m_dt);
+    }
+
+    /// Get the game world.
+    const World &world() const {
+        return m_world;
     }
 
     /// Get all persons in the game.

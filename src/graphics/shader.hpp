@@ -39,6 +39,21 @@ struct Sprite {
     GLint u_color;
 };
 
+/// Uniforms and attributes for the "sprite" shader.
+struct World {
+    static const Base::ShaderField UNIFORMS[];
+    static const Base::ShaderField ATTRIBUTES[];
+
+    // Attributes
+    GLint a_vert;
+    GLint a_color;
+    GLint a_normal;
+
+    // Uniforms
+    GLint u_modelview;
+    GLint u_projection;
+};
+
 }
 }
 #endif

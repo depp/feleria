@@ -41,5 +41,20 @@ const ShaderField TYPE::ATTRIBUTES[] = {
 };
 #undef TYPE
 
+#define TYPE World
+const ShaderField TYPE::UNIFORMS[] = {
+    UFIELD(modelview),
+    UFIELD(projection),
+    { nullptr, 0 }
+};
+
+const ShaderField TYPE::ATTRIBUTES[] = {
+    AFIELD(vert),
+    AFIELD(color),
+    AFIELD(normal),
+    { nullptr, 0 }
+};
+#undef TYPE
+
 }
 }

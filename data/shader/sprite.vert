@@ -1,10 +1,10 @@
-#version 120
+#version 130
 
-attribute vec2 vert;
-attribute vec2 texcoord;
+in vec2 vert;
+in vec2 texcoord;
 uniform vec4 vertxform;
 uniform vec2 texscale;
-varying vec2 vtexcoord;
+out vec2 vtexcoord;
 
 void main() {
     vtexcoord = texcoord * texscale;

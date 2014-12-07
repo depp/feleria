@@ -51,6 +51,8 @@ person.cpp
 person.hpp
 sprite.cpp
 sprite.hpp
+world.cpp
+world.hpp
 ''')
 
 src.add(path='graphics', sources='''

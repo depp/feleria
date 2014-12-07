@@ -25,6 +25,12 @@ Game::Game()
 
 Game::~Game() {}
 
+void Game::load() {
+    if (!m_world.load()) {
+        Log::abort("Could not load world.");
+    }
+}
+
 void Game::handle_event(const sg_event &evt) {
     m_bindings.handle_event(m_input, evt);
 }

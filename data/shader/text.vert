@@ -1,9 +1,9 @@
-#version 120
+#version 130
 
-attribute vec4 vert;
+in vec4 vert;
 uniform vec4 vertxform;
 uniform vec2 texscale;
-varying vec2 texcoord;
+out vec2 texcoord;
 
 void main() {
     texcoord = vert.zw * texscale;
