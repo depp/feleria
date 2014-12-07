@@ -77,21 +77,27 @@ void System::draw(int width, int height, const Game::Game &game) {
 
     // Emit game geometry
     {
-        float frac = game.frame_frac();
+        // float frac = game.frame_frac();
 
         auto &s = m_sprite;
         s.array.clear();
         for (const auto &person : game.person()) {
             auto dir = DIRECTION_INFO[static_cast<int>(person.direction())];
-            Vec2 pos = person.position(frac);
+            SpritePart parts[Game::PART_COUNT], *op = parts;
             auto partp = std::begin(person), parte = std::end(person);
             for (; partp != parte; partp++) {
                 auto part = *partp;
-                s.array.add(
-                    s.sheet.get(part.sprite(), part.frame(), dir.index),
-                    pos + part.offset(),
-                    dir.orient);
+                *op++ = SpritePart {
+                    &s.sheet.get(part.sprite(), part.frame(), dir.index),
+                    part.offset()
+                };
             }
+            s.array.add(
+                parts, op - parts,
+                Vec3::zero(), // person.position(frac),
+                Vec3{{1.0f, 0.0f, 0.0f}},
+                Vec3{{0.0f, 0.0f, 1.0f}},
+                dir.orient);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
@@ -220,14 +226,6 @@ void System::draw(int width, int height, const Game::Game &game) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        float vertxform[4] = {
-            8.0f / (float) width,
-            8.0f / (float) height,
-            -1.0f,
-            -1.0f
-        };
-        float color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
         auto &s = m_sprite;
         const auto &tex = s.sheet.texture();
         const auto &prog = s.prog;
@@ -237,21 +235,23 @@ void System::draw(int width, int height, const Game::Game &game) {
         if (prog->a_vert >= 0) {
             glEnableVertexAttribArray(prog->a_vert);
             glVertexAttribPointer(
-                prog->a_vert, 2, GL_FLOAT, GL_FALSE,
-                12, nullptr);
+                prog->a_vert, 3, GL_FLOAT, GL_FALSE,
+                16, nullptr);
         }
         if (prog->a_texcoord >= 0) {
             glEnableVertexAttribArray(prog->a_texcoord);
             glVertexAttribPointer(
                 prog->a_texcoord, 4, GL_SHORT, GL_FALSE,
-                12, reinterpret_cast<void *>(8));
+                16, reinterpret_cast<void *>(12));
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glUniform4fv(prog->u_vertxform, 1, vertxform);
+        glUniformMatrix4fv(prog->u_modelview, 1, GL_FALSE,
+                           worldview.data());
+        glUniformMatrix4fv(prog->u_projection, 1, GL_FALSE,
+                           projection.data());
         glUniform2fv(prog->u_texscale, 1, tex.scale);
         glUniform1i(prog->u_texture, 0);
-        glUniform4fv(prog->u_color, 1, color);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex.tex);

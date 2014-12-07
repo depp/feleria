@@ -28,10 +28,10 @@ const ShaderField TYPE::ATTRIBUTES[] = {
 
 #define TYPE Sprite
 const ShaderField TYPE::UNIFORMS[] = {
-    UFIELD(vertxform),
+    UFIELD(modelview),
+    UFIELD(projection),
     UFIELD(texscale),
     UFIELD(texture),
-    UFIELD(color),
     { nullptr, 0 }
 };
 

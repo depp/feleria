@@ -38,12 +38,18 @@ public:
     const Base::Texture &texture() const { return m_texture; }
 };
 
+/// A part of a composite sprite.
+struct SpritePart {
+    const sg_sprite *sprite;
+    Vec2 offset;
+};
+
 // Array of sprite rectangles with texture coordinates.
 // Draw with GL_TRIANGLES.
 class SpriteArray {
 private:
     struct Vertex {
-        float px, py;
+        Vec3 pos;
         short tx, ty;
     };
 
@@ -59,8 +65,10 @@ public:
 
     /// Clear the array.
     void clear();
-    /// Add a sprite at the given coordinate.
-    void add(const sg_sprite &sp, Vec2 pos, Base::Orientation orient);
+    /// Add sprites at the given location.
+    void add(const SpritePart *parts, int count,
+             Vec3 pos, Vec3 right, Vec3 up,
+             Base::Orientation orient);
     /// Upload the array data.
     void upload(GLuint usage);
     /// Bind the OpenGL attribute.

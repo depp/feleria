@@ -33,10 +33,10 @@ struct Sprite {
     GLint a_texcoord;
 
     // Uniforms
-    GLint u_vertxform;
+    GLint u_modelview;
+    GLint u_projection;
     GLint u_texscale;
     GLint u_texture;
-    GLint u_color;
 };
 
 /// Uniforms and attributes for the "sprite" shader.

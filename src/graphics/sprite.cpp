@@ -128,100 +128,54 @@ void SpriteArray::clear() {
     m_array.clear();
 }
 
-void SpriteArray::add(const sg_sprite &sp, Vec2 pos,
+void SpriteArray::add(const SpritePart *parts, int count,
+                      Vec3 pos, Vec3 right, Vec3 up,
                       Base::Orientation orient) {
-    using Base::Orientation;
-    if (sp.w == 0) {
-        return;
+    Vec3 nright, nup;
+
+    {
+        int oidx = static_cast<int>(orient);
+        Vec3 up2 = (oidx & 4) != 0 ? -up : up;
+        switch (oidx & 3) {
+        default:
+        case 0: nright =  right; nup =    up2; break;
+        case 1: nright =    up2; nup = -right; break;
+        case 2: nright = -right; nup =   -up2; break;
+        case 3: nright =   -up2; nup =  right; break;
+        }
     }
 
-    float x = pos[0], y = pos[1];
-    Vertex *data = m_array.insert(6);
+    Vertex *all_verts = m_array.insert(6 * count);
+    for (int i = 0; i < count; i++) {
+        Vertex *v = all_verts + 6 * i;
+        const auto sp = *parts[i].sprite;
 
-    short tx0 = sp.x, tx1 = sp.x + sp.w;
-    short ty1 = sp.y, ty0 = sp.y + sp.h;
+        {
+            short tx0 = sp.x, tx1 = sp.x + sp.w;
+            short ty1 = sp.y, ty0 = sp.y + sp.h;
 
-    data[0].tx = tx0; data[0].ty = ty0;
-    data[1].tx = tx1; data[1].ty = ty0;
-    data[2].tx = tx0; data[2].ty = ty1;
-    data[3].tx = tx0; data[3].ty = ty1;
-    data[4].tx = tx1; data[4].ty = ty0;
-    data[5].tx = tx1; data[5].ty = ty1;
+            v[0].tx = tx0; v[0].ty = ty0;
+            v[1].tx = tx1; v[1].ty = ty0;
+            v[2].tx = tx0; v[2].ty = ty1;
+            v[3].tx = tx0; v[3].ty = ty1;
+            v[4].tx = tx1; v[4].ty = ty0;
+            v[5].tx = tx1; v[5].ty = ty1;
+        }
 
-    // FIXME: most of these are wrong
-    float rx0 = (float) -sp.cx, rx1 = (float) (sp.w - sp.cx);
-    float ry0 = (float) (sp.cy - sp.h), ry1 = (float) +sp.cy;
-    float vx[4], vy[4];
-    switch (orient) {
-    case Orientation::NORMAL:
-        vx[0] = vx[2] = x + rx0;
-        vx[1] = vx[3] = x + rx1;
-        vy[0] = vy[1] = y + ry0;
-        vy[2] = vy[3] = y + ry1;
-        break;
+        {
+            Vec3 spos = pos +
+                parts[i].offset[0] * right + parts[i].offset[1] * up;
+            Vec3 vx0 = nright * (float) -sp.cx;
+            Vec3 vx1 = nright * (float) (sp.w - sp.cx);
+            Vec3 vy0 = nup * (float) (sp.cy - sp.h);
+            Vec3 vy1 = nup * (float) +sp.cy;
 
-    case Orientation::ROTATE_90:
-        vx[2] = vx[3] = x - ry0;
-        vx[0] = vx[1] = x - ry1;
-        vy[2] = vy[0] = y + rx0;
-        vy[3] = vy[1] = y + rx1;
-        break;
-
-    case Orientation::ROTATE_180:
-        vx[3] = vx[1] = x - rx0;
-        vx[2] = vx[0] = x - rx1;
-        vy[3] = vy[2] = y - ry0;
-        vy[1] = vy[0] = y - ry1;
-        break;
-
-    case Orientation::ROTATE_270:
-        vx[1] = vx[0] = x - ry0;
-        vx[3] = vx[2] = x - ry1;
-        vy[1] = vy[3] = y + rx0;
-        vy[0] = vy[2] = y + rx1;
-        break;
-
-    case Orientation::FLIP_VERTICAL:
-        vx[0] = vx[2] = x + rx0;
-        vx[1] = vx[3] = x + rx1;
-        vy[0] = vy[1] = y - ry1;
-        vy[2] = vy[3] = y - ry0;
-        break;
-
-    case Orientation::TRANSPOSE_2:
-        vx[2] = vx[3] = x - ry0;
-        vx[0] = vx[1] = x - ry1;
-        vy[2] = vy[0] = y - rx1;
-        vy[3] = vy[1] = y - rx0;
-        break;
-
-    case Orientation::FLIP_HORIZONTAL:
-        vx[3] = vx[1] = x - rx1;
-        vx[2] = vx[0] = x - rx0;
-        vy[3] = vy[2] = y + ry1;
-        vy[1] = vy[0] = y + ry0;
-        break;
-
-    case Orientation::TRANSPOSE:
-        vx[1] = vx[0] = x + ry0;
-        vx[3] = vx[2] = x + ry1;
-        vy[1] = vy[3] = y + rx1;
-        vy[0] = vy[2] = y + rx0;
-        break;
-
-    default:
-#ifdef __GCC__
-        __builtin_unreachable();
-#endif
-        return;
+            v[0].pos = spos + vx0 + vy0;
+            v[1].pos = v[4].pos = spos + vx1 + vy0;
+            v[2].pos = v[3].pos = spos + vx0 + vy1;
+            v[5].pos = spos + vx1 + vy1;
+        }
     }
-
-    data[0].px = vx[0]; data[0].py = vy[0];
-    data[1].px = vx[1]; data[1].py = vy[1];
-    data[2].px = vx[2]; data[2].py = vy[2];
-    data[3].px = vx[2]; data[3].py = vy[2];
-    data[4].px = vx[1]; data[4].py = vy[1];
-    data[5].px = vx[3]; data[5].py = vy[3];
 }
 
 void SpriteArray::upload(GLuint usage) {
