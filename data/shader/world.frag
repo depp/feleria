@@ -1,8 +1,8 @@
 #version 130
 
-flat in vec3 vcolor;
-flat in vec3 vnormal;
+in vec3 vcolor;
+flat in vec3 vlight;
 
 void main() {
-    gl_FragColor = vec4(vcolor, 1.0);
+    gl_FragColor = vec4(vcolor * vlight, 1.0);
 }

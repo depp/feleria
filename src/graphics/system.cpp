@@ -181,12 +181,20 @@ void System::draw(int width, int height, const Game::Game &game) {
         float wvscale = 0.5f;
         Transform xform = Transform::scale(Vec3{{
                     wscale, wscale, wvscale * wscale }});
-        Color terrain_color[4] = {
-            Color::palette(1),
-            Color::palette(10),
-            Color::palette(3),
-            Color::palette(0)
+        Color terrain_color[8] = {
+            Color::palette(1),  Color::palette(2),
+            Color::palette(10), Color::palette(20),
+            Color::palette(3),  Color::palette(3),
+            Color::palette(27),  Color::palette(27)
         };
+        float height[8] = {
+            -5.0f, +8.0f, 2.5f, 7.0f,
+            -100.0f, -100.0f, -100.0f, -100.0f
+        };
+        float izscale = 1.0f / (wvscale * wscale);
+        for (int i = 0; i < 8; i++)
+            terrain_color[i].v[3] = izscale * height[i];
+
         xform.view = worldview * xform.view;
         glUniformMatrix4fv(prog->u_modelview, 1, GL_FALSE,
                            xform.view.data());
@@ -194,7 +202,7 @@ void System::draw(int width, int height, const Game::Game &game) {
                            projection.data());
         glUniformMatrix3fv(prog->u_normalmat, 1, GL_FALSE,
                            xform.normal.data());
-        glUniform4fv(prog->u_terrain_color, 4, &terrain_color[0].v[0]);
+        glUniform4fv(prog->u_terrain_color, 8, &terrain_color[0].v[0]);
         glUniform3fv(prog->u_light_dir, LIGHT_COUNT, LIGHT_DIR[0]);
         glUniform3fv(prog->u_light_color, LIGHT_COUNT, LIGHT_COLOR[0]);
 
