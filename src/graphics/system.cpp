@@ -109,7 +109,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         // 35mm equivalent focal length.
         const double focal = 55.0;
         // Width of the subject.
-        const double subject_size = 64.0 * 1.25;
+        const double subject_size = 64.0 * 1.4;
 
         double distance;
 
@@ -146,7 +146,7 @@ void System::draw(int width, int height, const Game::Game &game) {
                 Quat::rotation(
                     Vec3{{1.0f, 0.0f, 0.0f}},
                     (std::atan(1.0) / 45.0) * (90.0 - elevation));
-            Vec3 target = Vec3::zero();
+            Vec3 target {{ 0.0f, 0.0f, 2.0f }};
             Vec3 dir = angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
             Vec3 pos = target + dir * (float) distance;
             worldview = Mat4::rotation(angle.conjugate()) *
