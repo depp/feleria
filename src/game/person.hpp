@@ -92,6 +92,7 @@ private:
 
     // Current and previous position.
     Vec2 m_pos[2];
+    float m_posz[2];
     // Current velocity.
     Vec2 m_vel;
 
@@ -127,8 +128,12 @@ public:
     }
 
     // Get the current position.
-    Vec2 position(float frac) const {
-        return Vec2::lerp(m_pos[0], m_pos[1], frac);
+    Vec3 position(float frac) const {
+        return Vec3{{
+            m_pos[0][0] + frac * (m_pos[1][0] - m_pos[0][0]),
+            m_pos[0][1] + frac * (m_pos[1][1] - m_pos[0][1]),
+            m_posz[0] + frac * (m_posz[1] - m_posz[0])
+        }};
     }
 
     // Get an iterator to the first sprite in the person.

@@ -8,9 +8,9 @@ namespace Game {
 
 namespace {
 
-const float MOVE_SPEED      = 50.0f;    // unit/s
-const float ACCELERATION    = 200.0f;   // unit/s^2
-const float STEP_DISTANCE   = 4.0f;     // unit
+const float MOVE_SPEED      = 12.0f;    // unit/s
+const float ACCELERATION    = 50.0f;    // unit/s^2
+const float STEP_DISTANCE   = 1.0f;     // unit
 const float STAND_TIME      = 1.0;      // s
 
 // Map from parts to animation groups.
@@ -56,6 +56,7 @@ Person::Person(Vec2 pos, Direction dir) {
         m_part[i] = -1;
     m_spritecount = 0;
     m_pos[0] = m_pos[1] = pos;
+    m_posz[0] = m_posz[1] = 0.0f;
     m_vel = Vec2::zero();
     m_steppos = pos;
     m_stepframe = 0;

@@ -40,6 +40,8 @@ const float LIGHT_COLOR[LIGHT_COUNT][3] = {
     { 0.5f, 0.5f, 1.0f }
 };
 
+const float SPRITE_SCALE = 0.2f;
+
 }
 
 System::System() { }
@@ -132,9 +134,9 @@ void System::draw(int width, int height, const Game::Game &game) {
 
     // Emit game geometry
     {
-        // float frac = game.frame_frac();
-        Vec3 right = camera_angle.transform(Vec3{{1.0f, 0.0f, 0.0f}});
-        Vec3 up = camera_angle.transform(Vec3{{0.0f, 1.0f, 0.0f}});
+        float frac = game.frame_frac();
+        Vec3 right = camera_angle.transform(Vec3{{SPRITE_SCALE, 0.0f, 0.0f}});
+        Vec3 up = camera_angle.transform(Vec3{{0.0f, SPRITE_SCALE, 0.0f}});
 
         auto &s = m_sprite;
         s.array.clear();
@@ -149,12 +151,8 @@ void System::draw(int width, int height, const Game::Game &game) {
                     part.offset()
                 };
             }
-            s.array.add(
-                parts, op - parts,
-                Vec3::zero(), // person.position(frac),
-                right,
-                up,
-                dir.orient);
+            s.array.add(parts, op - parts,
+                        person.position(frac), right, up, dir.orient);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, s.buffer);

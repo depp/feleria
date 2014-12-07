@@ -14,7 +14,7 @@ const double MAX_UPDATE = 1.0;
 
 Game::Game()
     : m_frametime(0.0), m_curtime(0.0), m_dt(DEFAULT_DT) {
-    m_person.push_back(Person(Vec2{{100.0f, 100.0f}}, Direction::LEFT));
+    m_person.push_back(Person(Vec2{{0.0f, 0.0f}}, Direction::LEFT));
     auto &p = m_person.back();
     p.set_part(Part::BOTTOM, Sprite::GIRL_BOT);
     p.set_part(Part::TOP, Sprite::GIRL_TOP);
