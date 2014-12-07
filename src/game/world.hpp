@@ -14,6 +14,8 @@ private:
     const void *m_vertex_data;
     std::size_t m_vertex_size;
     IVec2 m_size;
+    Vec2 m_center;
+    const unsigned char *m_heightmap;
 
 public:
     World();
@@ -35,6 +37,9 @@ public:
     const IVec2 size() const {
         return m_size;
     }
+
+    /// Get the terrain height at the given position.
+    float height(Vec2 pos) const;
 };
 
 }
