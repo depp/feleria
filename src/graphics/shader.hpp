@@ -53,6 +53,7 @@ struct World {
     GLint u_modelview;
     GLint u_projection;
     GLint u_normalmat;
+    GLint u_terrain_color;
     GLint u_light_dir;
     GLint u_light_color;
 };

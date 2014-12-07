@@ -47,6 +47,7 @@ const ShaderField TYPE::UNIFORMS[] = {
     UFIELD(modelview),
     UFIELD(projection),
     UFIELD(normalmat),
+    UARRAY(terrain_color),
     UARRAY(light_dir),
     UARRAY(light_color),
     { nullptr, 0 }

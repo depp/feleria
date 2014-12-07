@@ -39,8 +39,6 @@ sprite.enum.hpp
 ''')
 
 src.add(path='game', sources='''
-color.cpp
-color.hpp
 control.cpp
 control.hpp
 defs.cpp
@@ -56,6 +54,8 @@ world.hpp
 ''')
 
 src.add(path='graphics', sources='''
+color.cpp
+color.hpp
 defs.hpp
 shader.cpp
 shader.hpp
