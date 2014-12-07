@@ -2,8 +2,8 @@
    This file is part of Legend of Feleria.  Legend of Feleria is
    licensed under the terms of the 2-clause BSD license.  For more
    information, see LICENSE.txt. */
-#ifndef LD_GAME_COLOR_HPP
-#define LD_GAME_COLOR_HPP
+#ifndef LD_GRAPHICS_COLOR_HPP
+#define LD_GRAPHICS_COLOR_HPP
 namespace Graphics {
 
 struct Color {
