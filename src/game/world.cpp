@@ -48,12 +48,22 @@ bool World::load() {
         w.m_vertex_size = chunk.second;
     }
 
+    std::size_t tilesz = (std::size_t) w.m_size[0] * w.m_size[1];
+
     {
         auto chunk = chunks.get("HGHT");
-        if (chunk.second != (std::size_t) w.m_size[0] * w.m_size[1]) {
+        if (chunk.second != tilesz) {
             return false;
         }
         w.m_heightmap = reinterpret_cast<const unsigned char *>(chunk.first);
+    }
+
+    {
+        auto chunk = chunks.get("TILE");
+        if (chunk.second != tilesz) {
+            return false;
+        }
+        w.m_tilemap = reinterpret_cast<const unsigned char *>(chunk.first);
     }
 
     *this = std::move(w);

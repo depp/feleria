@@ -16,6 +16,7 @@ private:
     IVec2 m_size;
     Vec2 m_center;
     const unsigned char *m_heightmap;
+    const unsigned char *m_tilemap;
 
 public:
     World();
