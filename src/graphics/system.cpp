@@ -64,6 +64,7 @@ bool System::load(const Game::Game &game) {
         }
         glDeleteBuffers(1, &s.buffer);
         glGenBuffers(1, &s.buffer);
+        s.util_sprite = game.sprites().get_index("ui_util");
     }
     {
         auto &s = m_world;
@@ -164,6 +165,22 @@ void System::draw(int width, int height, const Game::Game &game) {
             }
             s.array.add(parts, op - parts,
                         person.position(frac), right, up, dir.orient);
+
+            {
+                const auto &w = game.world();
+                auto pos = person.position(frac);
+                Vec2 pos2 {{ pos[0], pos[1] }};
+                auto trace = w.edge_distance(pos2, true);
+                int frame = trace.first > 0.0f ? 0 : 1;
+                parts[0] = SpritePart {
+                    &sd.get_data(s.util_sprite, frame, 0),
+                    Vec2::zero()
+                };
+                s.array.add(
+                    parts, 1,
+                    w.project(pos2 + trace.first * trace.second),
+                    right, up, Orientation::NORMAL);
+            }
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, s.buffer);

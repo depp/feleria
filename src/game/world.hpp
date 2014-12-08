@@ -11,6 +11,9 @@ namespace Game {
 
 /// Information about the world (the terrain, not the objects in it).
 class World {
+public:
+    typedef std::pair<float, Vec2> EdgeTrace;
+
 private:
     Base::Data m_data;
     std::pair<const void *, std::size_t> m_vertex_data;
@@ -57,6 +60,17 @@ public:
 
     /// Get the terrain height at the given position.
     float height_at(Vec2 pos) const;
+
+    /// Project a 2D point onto the terrain.
+    Vec3 project(Vec2 pos) const {
+        return Vec3 {{ pos[0], pos[1], height_at(pos) }};
+    }
+
+    /// Get the (distance, direction) to the nearest map edge.  The
+    /// distance is positive if we are inside the map, and negative if
+    /// we are outside.  If the magnitude of the distance is large,
+    /// then the distance and direction are bogus.
+    EdgeTrace edge_distance(Vec2 pos, bool is_player) const;
 };
 
 }

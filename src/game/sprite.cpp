@@ -2,6 +2,7 @@
    This file is part of Legend of Feleria.  Legend of Feleria is
    licensed under the terms of the 2-clause BSD license.  For more
    information, see LICENSE.txt. */
+#include "defs.hpp"
 #include "sprite.hpp"
 #include "sg/sprite.h"
 #include "base/chunk.hpp"
@@ -74,6 +75,7 @@ int SpriteData::get_index(const char *name) const {
             return (int) i;
         }
     }
+    Log::warn("Missing sprite: %s", name);
     return -1;
 }
 

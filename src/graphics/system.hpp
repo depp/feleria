@@ -21,8 +21,9 @@ private:
         Base::Texture texture;
         SpriteArray array;
         GLuint buffer;
+        int util_sprite;
 
-        SysSprite() : buffer(0) {}
+        SysSprite() : buffer(0), util_sprite(-1) {}
     };
 
     struct SysWorld {

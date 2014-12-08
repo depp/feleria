@@ -9,6 +9,16 @@ namespace Game {
 
 namespace {
 
+const int MAX_TILE = 6;
+const int SCAN_SIZE = 1;
+const World::EdgeTrace TRACE_OUTSIDE((float) -(SCAN_SIZE + 1), Vec2::zero());
+const World::EdgeTrace TRACE_INSIDE ((float) +(SCAN_SIZE + 1), Vec2::zero());
+
+const unsigned char TILE_CONVERT[2][MAX_TILE + 1] = {
+    { 0, 1, 2, 3, 4, 0 }, // not player
+    { 0, 1, 2, 3, 4, 1 }, // player
+};
+
 const char WORLD_MAGIC[16] = "Feleria World";
 
 struct SizeInfo {
@@ -81,6 +91,12 @@ bool World::load() {
             return false;
         }
         w.m_tilemap = reinterpret_cast<const unsigned char *>(chunk.first);
+        for (const unsigned char *p = w.m_tilemap, *e = p + chunk.second;
+             p != e; p++) {
+            if (*p > MAX_TILE) {
+                return false;
+            }
+        }
     }
 
     *this = std::move(w);
@@ -101,6 +117,33 @@ float World::height_at(Vec2 pos) const {
     float v0 = v00 + (v01 - v00) * fx;
     float v1 = v10 + (v11 - v10) * fx;
     return (v0 + (v1 - v0) * fy) * m_height_scale + m_height_min;
+}
+
+World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
+    Vec2 rpos = pos + m_center;
+    int x = (int) rpos[0], y = (int) rpos[1];
+    int w = m_size[0], h = m_size[1];
+    if (x < 0 || x >= w || y < 0 || y >= h) {
+        return TRACE_OUTSIDE;
+    }
+    float fx = std::fmod(rpos[0], 1.0f), fy = std::fmod(rpos[1], 1.0f);
+    const unsigned char *tc = TILE_CONVERT[(int) is_player];
+    int tile = tc[m_tilemap[y*w+x]];
+    bool is_inside;
+    switch (tile) {
+    default:
+    case 0: is_inside = false; break;
+    case 1: is_inside = true; break;
+    case 2: is_inside = fy > 1.0f - fx; break;
+    case 3: is_inside = fy > fx; break;
+    case 4: is_inside = fy < fx; break;
+    case 5: is_inside = fy < 1.0f - fx; break;
+    }
+    return is_inside ? TRACE_INSIDE : TRACE_OUTSIDE;
+    /*
+    int x0 = x - SCAN_SIZE, x1 = x + 1 + SCAN_SIZE;
+    int y0 = x - SCAN_SIZE, y1 = y + 1 + SCAN_SIZE;
+    */
 }
 
 }

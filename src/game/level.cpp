@@ -46,9 +46,6 @@ bool Level::load(const SpriteData &sprites, const std::string &name) {
             }
             int idx = sprites.get_index(name);
             spr_idx.push_back(idx);
-            if (idx == -1) {
-                Log::warn("Missing sprite: %s", name);
-            }
         }
     }
 
