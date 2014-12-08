@@ -15,8 +15,8 @@ const World::EdgeTrace TRACE_OUTSIDE((float) -(SCAN_SIZE + 1), Vec2::zero());
 const World::EdgeTrace TRACE_INSIDE ((float) +(SCAN_SIZE + 1), Vec2::zero());
 
 const unsigned char TILE_CONVERT[2][MAX_TILE + 1] = {
-    { 0, 1, 2, 3, 4, 0 }, // not player
-    { 0, 1, 2, 3, 4, 1 }, // player
+    { 0, 1, 2, 3, 4, 5, 0 }, // not player
+    { 0, 1, 2, 3, 4, 5, 1 }, // player
 };
 
 const char WORLD_MAGIC[16] = "Feleria World";
@@ -158,7 +158,7 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
                 if (tile == ignore) {
                     continue;
                 }
-                if (x == xi && false) {
+                if (x == xi) {
                     if (y > yi) {
                         ttrace = EdgeTrace(
                             (float) (y - yi - 1) + fy,
@@ -170,7 +170,7 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
                     }
                     goto have_trace;
                 }
-                if (y == yi && false) {
+                if (y == yi) {
                     if (x > xi) {
                         ttrace = EdgeTrace(
                             (float) (x - xi - 1) + fx,
@@ -186,6 +186,52 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
                 vp[1] = (float) (yi + (y > yi));
                 goto point_distance;
             } else {
+                float a, b;
+                Vec2 dp;
+                switch (tile) {
+                case 2:
+                case 5:
+                    vp[0] = (float) (xi + 1);
+                    vp[1] = (float) yi;
+                    dp = vp - rpos;
+                    b = dp[1] - dp[0];
+                    a = dp[1] + dp[0];
+                    if (b > 0.0f) {
+                        goto point_distance;
+                    }
+                    if (b < -2.0f) {
+                        vp[0] += -1.0f;
+                        vp[1] += +1.0f;
+                        goto point_distance;
+                    }
+                    ttrace = EdgeTrace(
+                        std::abs(a) * std::sqrt(0.5f),
+                        Vec2 {{ 1.0f, 1.0f }} *
+                        std::copysign(std::sqrt(0.5f), a));
+                    goto have_trace;
+
+                case 3:
+                case 4:
+                    vp[0] = (float) xi;
+                    vp[1] = (float) yi;
+                    dp = vp - rpos;
+                    b = dp[1] + dp[0];
+                    a = dp[1] - dp[0];
+                    if (b > 0.0f) {
+                        goto point_distance;
+                    }
+                    if (b < -2.0f) {
+                        vp[0] += +1.0f;
+                        vp[1] += +1.0f;
+                        goto point_distance;
+                    }
+                    ttrace = EdgeTrace(
+                        std::abs(a) * std::sqrt(0.5f),
+                        Vec2 {{ -1.0f, 1.0f }} *
+                        std::copysign(std::sqrt(0.5f), a));
+                    goto have_trace;
+                }
+                (void) a;
                 continue;
             }
 
