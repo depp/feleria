@@ -13,6 +13,8 @@ namespace Graphics {
 
 namespace {
 
+const bool debug_trace = false;
+
 using Base::Orientation;
 
 struct DirectionInfo {
@@ -166,7 +168,7 @@ void System::draw(int width, int height, const Game::Game &game) {
             s.array.add(parts, op - parts,
                         person.position(frac), right, up, dir.orient);
 
-            {
+            if (debug_trace) {
                 const auto &w = game.world();
                 auto pos = person.position(frac);
                 Vec2 pos2 {{ pos[0], pos[1] }};
