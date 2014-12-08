@@ -15,6 +15,8 @@ const float ACCELERATION    = 50.0f;    // unit/s^2
 const float STEP_DISTANCE   = 1.0f;     // unit
 const float STAND_TIME      = 1.0;      // s
 
+const float PUSH_DIST = 0.25f;
+
 // Map from parts to animation groups.
 const Group PART_GROUP[PART_COUNT] = {
     Group::TORSO, Group::TORSO, Group::LEGS, Group::TORSO,
@@ -81,6 +83,17 @@ void Person::update(Game &game) {
         float dvmag = dv.mag();
         float faccel = dtime * ACCELERATION;
         v1 = dvmag <= faccel ? vmove : v0 + dv * (faccel / dvmag);
+    }
+
+    // Calculate physics push
+    {
+        auto tr = game.world().edge_distance(m_pos[1], true);
+        float push_amt = PUSH_DIST - tr.first;
+        if (push_amt > 0.0f) {
+            float dc = Vec2::dot(tr.second, v1);
+            if (dc > 0.0f)
+                v1 += tr.second * (-dc);
+        }
     }
 
     // Update position and input fields.
