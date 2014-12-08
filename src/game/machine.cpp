@@ -162,6 +162,7 @@ bool Machine::jump(const std::string &name) {
         return false;
     }
     m_pc = target;
+    m_character = -1;
     return true;
 }
 
@@ -249,9 +250,11 @@ void Machine::run(Game &game) {
             break;
         }
 
-        case Opcode::SAVE:
-            r.error("SAVE");
+        case Opcode::SAVE: {
+            int value = r.imm();
+            set_var(m_character, value);
             break;
+        }
 
         case Opcode::SAY: {
             const char *text = m_script.get_text(r.imm());
@@ -340,6 +343,7 @@ void Machine::trigger_script(int character) {
         return;
     }
     m_pc = get_var(character);
+    m_character = character;
 }
 
 void Machine::set_var(int var, int value) {
