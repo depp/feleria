@@ -9,6 +9,7 @@
 #include "game/game.hpp"
 #include "game/person.hpp"
 #include "base/image.hpp"
+#include <cstring>
 namespace Graphics {
 
 namespace {
@@ -47,6 +48,14 @@ const float SPRITE_SCALE = 0.2f;
 
 }
 
+System::SysText::SysText()
+    : typeface(nullptr), font(nullptr) {
+    for (int i = 0; i < LINE_COUNT; i++) {
+        line[i].layout = nullptr;
+        line[i].pos = Vec2::zero();
+    }
+}
+
 System::System() { }
 
 System::~System() { }
@@ -82,6 +91,22 @@ bool System::load(const Game::Game &game) {
                          vdata.second, vdata.first, GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             s.count = vdata.second / 8;
+        }
+    }
+    {
+        auto &s = m_text;
+        if (!s.prog.load("text", "text")) {
+            success = false;
+        }
+        const char *path = "font/Alegreya-Bold";
+        auto typeface = sg_typeface_file(path, std::strlen(path), nullptr);
+        if (typeface == nullptr) {
+            success = false;
+        } else {
+            if (s.typeface) {
+                sg_typeface_decref(s.typeface);
+            }
+            s.typeface = typeface;
         }
     }
     return success;

@@ -8,6 +8,7 @@
 #include "sprite.hpp"
 #include "base/image.hpp"
 #include "sg/opengl.h"
+#include "sg/type.h"
 namespace Game {
 class Game;
 }
@@ -34,8 +35,25 @@ private:
         SysWorld() : buffer(0), count(0) {}
     };
 
+    struct SysText {
+        static const int LINE_COUNT = 4;
+
+        struct Line {
+            sg_textlayout *layout;
+            Vec2 pos;
+        };
+
+        Base::Program<Shader::Text> prog;
+        sg_typeface *typeface;
+        sg_font *font;
+        Line line[LINE_COUNT];
+
+        SysText();
+    };
+
     SysSprite m_sprite;
     SysWorld m_world;
+    SysText m_text;
 
 public:
     System();
