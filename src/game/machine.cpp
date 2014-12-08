@@ -169,6 +169,7 @@ bool Machine::jump(const std::string &name) {
     } while (0)
 
 void Machine::run(Game &game) {
+    bool wastext = !m_text.empty();
     (void) &game;
     {
         int sz = m_script.memory_size();
@@ -306,6 +307,9 @@ void Machine::run(Game &game) {
     }
 exit:
     m_pc = r.get_pc();
+    if (wastext || !m_text.empty()) {
+        game.frame_input().clear();
+    }
 }
 
 void Machine::trigger_script(int character) {
