@@ -13,7 +13,7 @@ const char WORLD_MAGIC[16] = "Feleria World";
 
 struct SizeInfo {
     unsigned short w, h;
-    float height_scale;
+    float height_min, height_max;
     Vec3 vert_scale;
 };
 
@@ -24,6 +24,8 @@ World::World()
       m_vertex_data(std::pair<const void *, std::size_t>(nullptr, 0)),
       m_size(IVec2::zero()),
       m_center(Vec2::zero()),
+      m_height_min(-1.0f),
+      m_height_max(+1.0f),
       m_height_scale(1.0f),
       m_vertex_scale{{ 1.0f, 1.0f, 1.0f }},
       m_heightmap(nullptr),
@@ -48,7 +50,9 @@ bool World::load() {
             reinterpret_cast<const SizeInfo *>(chunk.first);
         w.m_size = IVec2{{ sz->w, sz->h }};
         w.m_center = Vec2{{ (float) sz->w * 0.5f, (float) sz->h * 0.5f }};
-        w.m_height_scale = sz->height_scale;
+        w.m_height_min = sz->height_min;
+        w.m_height_max = sz->height_max;
+        w.m_height_scale = (sz->height_max - sz->height_min) * (1.0f / 255.0f);
         w.m_vertex_scale = sz->vert_scale;
     }
 
@@ -87,7 +91,7 @@ float World::height_at(Vec2 pos) const {
     int x = (int) rpos[0], y = (int) rpos[1];
     int w = m_size[0], h = m_size[1];
     if (x < 0 || y < 0 || x >= w - 1 || y >= h - 1)
-        return 0.0f;
+        return m_height_min;
     float v00 = m_heightmap[(y+0)*w+x+0];
     float v01 = m_heightmap[(y+0)*w+x+1];
     float v10 = m_heightmap[(y+1)*w+x+0];
@@ -95,7 +99,7 @@ float World::height_at(Vec2 pos) const {
     float fx = std::fmod(rpos[0], 1.0f), fy = std::fmod(rpos[1], 1.0f);
     float v0 = v00 + (v01 - v00) * fx;
     float v1 = v10 + (v11 - v10) * fx;
-    return (v0 + (v1 - v0) * fy) * m_height_scale;
+    return (v0 + (v1 - v0) * fy) * m_height_scale + m_height_min;
 }
 
 }

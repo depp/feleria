@@ -16,7 +16,7 @@ private:
     std::pair<const void *, std::size_t> m_vertex_data;
     IVec2 m_size;
     Vec2 m_center;
-    float m_height_scale;
+    float m_height_min, m_height_max, m_height_scale;
     Vec3 m_vertex_scale;
     const unsigned char *m_heightmap;
     const unsigned char *m_tilemap;
