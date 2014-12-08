@@ -259,7 +259,6 @@ void Machine::run(Game &game) {
         case Opcode::SAY: {
             const char *text = m_script.get_text(r.imm());
             if (text != nullptr) {
-                Log::debug("Text: %s", text);
                 m_text.clear();
                 m_textserial++;
                 m_text.push_back(TextLine { text, 0, r.get_pc() });

@@ -261,7 +261,6 @@ void System::draw(int width, int height, const Game::Game &game) {
         if (!text.empty()) {
             bool load_font = !s.font;
             if (load_font) {
-                Log::debug("PIXSCALE: %f", pixscale);
                 auto font = sg_font_new(
                     s.typeface, FONT_SIZE * pixscale, nullptr);
                 if (s.font) {
@@ -311,7 +310,6 @@ void System::draw(int width, int height, const Game::Game &game) {
             float x1 = +0.5f * boxsize * vertscale[0];
             float y0 = -1.0f;
             float y1 = -1.0f + vertscale[1] * boxsize * 0.5f;
-            Log::debug("BOXSIZE: %f %f %f %f", x0, x1, y0, y1);
             float vert[24] = {
                 x0, y0, 0.0f, 1.0f,
                 x1, y0, 1.0f, 1.0f,
@@ -328,7 +326,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     }
 
     // Draw text box.
-    if (m_text.uiprog.is_loaded()) {
+    if (m_text.uiprog.is_loaded() && !m_text.empty) {
         const auto &s = m_text;
         const auto &prog = s.uiprog;
 
