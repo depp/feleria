@@ -10,7 +10,7 @@ namespace Game {
 namespace {
 
 const int MAX_TILE = 6;
-const int SCAN_SIZE = 1;
+const int SCAN_SIZE = 3;
 const World::EdgeTrace TRACE_OUTSIDE((float) -(SCAN_SIZE + 1), Vec2::zero());
 const World::EdgeTrace TRACE_INSIDE ((float) +(SCAN_SIZE + 1), Vec2::zero());
 
@@ -139,11 +139,55 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
     case 4: is_inside = fy < fx; break;
     case 5: is_inside = fy < 1.0f - fx; break;
     }
-    return is_inside ? TRACE_INSIDE : TRACE_OUTSIDE;
-    /*
+
     int x0 = x - SCAN_SIZE, x1 = x + 1 + SCAN_SIZE;
-    int y0 = x - SCAN_SIZE, y1 = y + 1 + SCAN_SIZE;
-    */
+    int y0 = y - SCAN_SIZE, y1 = y + 1 + SCAN_SIZE;
+    if (x0 < 0) x0 = 0;
+    if (x1 >= w) x1 = w;
+    if (y0 < 0) y0 = 0;
+    if (y1 >= h) y1 = h;
+    int ignore = is_inside ? 1 : 0;
+    EdgeTrace best = TRACE_INSIDE;
+    for (int yi = y0; yi < y1; yi++) {
+        for (int xi = x0; xi < x1; xi++) {
+            tile = tc[m_tilemap[yi*w+xi]];
+            EdgeTrace ttrace;
+            if (tile < 2) {
+                if (tile == ignore) {
+                    continue;
+                }
+                if (x == xi) {
+                    if (y > yi) {
+                        ttrace = EdgeTrace(
+                            (float) (y - yi - 1) + fy,
+                            Vec2 {{ 0.0f, -1.0f }});
+                    } else {
+                        ttrace = EdgeTrace(
+                            (float) (yi - y) - fy,
+                            Vec2 {{ 0.0f, +1.0f }});
+                    }
+                } else if (y == yi) {
+                    if (x > xi) {
+                        ttrace = EdgeTrace(
+                            (float) (x - xi - 1) + fx,
+                            Vec2 {{ -1.0f, 0.0f }});
+                    } else {
+                        ttrace = EdgeTrace(
+                            (float) (xi - x) - fx,
+                            Vec2 {{ +1.0f, 0.0f }});
+                    }
+                } else {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+            if (ttrace.first < best.first) {
+                best = ttrace;
+            }
+        }
+    }
+    return is_inside ? best : EdgeTrace(-best.first, -best.second);
 }
 
 }
