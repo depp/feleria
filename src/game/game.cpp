@@ -5,7 +5,6 @@
 #include "game.hpp"
 #include "control.hpp"
 #include "person.hpp"
-#include "level.hpp"
 namespace Game {
 
 namespace {
@@ -21,6 +20,10 @@ Game::~Game() {}
 
 bool Game::load() {
     bool success = true;
+    if (!m_script.load()) {
+        Log::warn("Could not load script.");
+        success = false;
+    }
     if (!m_sprites.load()) {
         Log::warn("Could not load sprites.");
         success = false;
@@ -33,19 +36,7 @@ bool Game::load() {
 }
 
 bool Game::start_level(const std::string &name) {
-    Level level;
-    if (!level.load(m_sprites, name)) {
-        return false;
-    }
-
-    for (const auto &sp : level.spawn()) {
-        Person p(sp.pos - m_world.center(), Direction::DOWN);
-        for (int i = 0; i < PART_COUNT; i++) {
-            p.set_part(static_cast<Part>(i), sp.sprite[i]);
-        }
-        add_person(p);
-    }
-
+    (void) &name;
     return true;
 }
 

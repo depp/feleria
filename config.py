@@ -41,10 +41,10 @@ defs.cpp
 defs.hpp
 game.cpp
 game.hpp
-level.cpp
-level.hpp
 person.cpp
 person.hpp
+script.cpp
+script.hpp
 sprite.cpp
 sprite.hpp
 world.cpp

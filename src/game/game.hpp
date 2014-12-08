@@ -8,6 +8,7 @@
 #include "control.hpp"
 #include "world.hpp"
 #include "sprite.hpp"
+#include "script.hpp"
 #include <vector>
 namespace Game {
 class Person;
@@ -21,6 +22,7 @@ private:
     Control::Bindings m_bindings;
     Control::FrameInput m_frame_input;
 
+    Script m_script;
     SpriteData m_sprites;
     World m_world;
     std::vector<Person> m_person, m_person_pending;
