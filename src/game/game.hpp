@@ -93,6 +93,16 @@ public:
         return m_world;
     }
 
+    /// Get the virtual machine.
+    const Machine &machine() const {
+        return m_machine;
+    }
+
+    /// Get the virtual machine.
+    Machine &machine() {
+        return m_machine;
+    }
+
     /// Get all persons in the game.
     const std::vector<Person> &person() const {
         return m_person;

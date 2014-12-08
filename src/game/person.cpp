@@ -17,7 +17,7 @@ const float STAND_TIME      = 1.0;      // s
 
 const float PUSH_DIST = 0.25f;
 const float TOUCH_DIST = 2.0f;
-const float TOUCH_RADIUS = 3.0f;
+const float TOUCH_RADIUS = 3.01f;
 
 // Map from parts to animation groups.
 const Group PART_GROUP[PART_COUNT] = {
@@ -97,7 +97,7 @@ void Person::update(Game &game) {
                 }
             }
             if (obj != nullptr) {
-                Log::debug("HIT");
+                game.machine().trigger_script(obj->m_identity);
             }
         }
     } else {
