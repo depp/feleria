@@ -46,7 +46,9 @@ private:
         Base::Program<Shader::Text> prog;
         sg_typeface *typeface;
         sg_font *font;
+        bool empty;
         Line line[LINE_COUNT];
+        unsigned serial;
 
         SysText();
     };

@@ -49,7 +49,7 @@ const float SPRITE_SCALE = 0.2f;
 }
 
 System::SysText::SysText()
-    : typeface(nullptr), font(nullptr) {
+    : typeface(nullptr), font(nullptr), empty(true), serial(0xffffffff) {
     for (int i = 0; i < LINE_COUNT; i++) {
         line[i].layout = nullptr;
         line[i].pos = Vec2::zero();
@@ -215,6 +215,39 @@ void System::draw(int width, int height, const Game::Game &game) {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         sg_opengl_checkerror("System::draw upload sprite");
+    }
+
+    // Draw text.
+    if (m_text.prog.is_loaded()) {
+        auto &s = m_text;
+        const auto &vm = game.machine();
+        const int NLINE = SysText::LINE_COUNT;
+        const auto &text = vm.text();
+
+        // Recompute text layout if it changed.
+        if (s.serial != vm.text_serial()) {
+            s.serial = vm.text_serial();
+
+            for (int i = 0; i < NLINE; i++) {
+                if (s.line[i].layout) {
+                    sg_textlayout_free(s.line[i].layout);
+                }
+                s.line[i].layout = nullptr;
+                s.line[i].pos = Vec2::zero();
+            }
+            s.empty = true;
+
+            if (!text.empty()) {
+                bool load_font = !s.font;
+                if (load_font) {
+                    auto font = sg_font_new(s.typeface, 32.0f, nullptr);
+                    if (s.font) {
+                        sg_font_decref(s.font);
+                    }
+                    s.font = font;
+                }
+            }
+        }
     }
 
     // Draw world.
