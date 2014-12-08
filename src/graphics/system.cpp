@@ -17,7 +17,7 @@ namespace {
 const bool debug_trace = false;
 const float FONT_SIZE = 48.0f;
 const float BOX_SIZE = 1024.0f;
-const Vec2 TEXT_POS {{ -425.0f, 265.0f }};
+const Vec2 TEXT_POS {{ -425.0f, 325.0f }};
 
 using Base::Orientation;
 
@@ -274,8 +274,9 @@ void System::draw(int width, int height, const Game::Game &game) {
         Vec2 vertscale { 2.0f / width, 2.0f / height };
         Vec2 pos = TEXT_POS * pixscale;
         int n = (int) std::min((std::size_t) NLINE, text.size());
+        if (n) n = 4;
         for (int i = 0; i < n; i++) {
-            const char *ltext = text[i].text;
+            const char *ltext = text[0].text;
             auto flow = sg_textflow_new(nullptr);
             if (!flow) {
                 break;
@@ -293,7 +294,7 @@ void System::draw(int width, int height, const Game::Game &game) {
             sg_textlayout_getmetrics(layout, &metrics);
             Vec2 lpos = pos;
             lpos[0] -= (float) metrics.logical.x0;
-            lpos[1] -= (float) metrics.logical.y0;
+            lpos[1] -= (float) metrics.logical.y1;
             {
                 float *v = s.line[i].vertxform;
                 v[0] = vertscale[0];
@@ -302,6 +303,7 @@ void System::draw(int width, int height, const Game::Game &game) {
                 v[3] = lpos[1] * vertscale[1] - 1.0f;
             }
             s.empty = false;
+            pos[1] -= (float) (metrics.logical.y1 - metrics.logical.y0);
         }
 
         {
