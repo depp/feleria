@@ -15,6 +15,7 @@ namespace Graphics {
 namespace {
 
 const bool debug_trace = false;
+const float FONT_SIZE = 72.0f;
 
 using Base::Orientation;
 
@@ -120,6 +121,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     Mat4 projection;
     Mat4 worldview;
     Quat camera_angle;
+    float pixscale;
     {
         // Reference aspect ratio.
         const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
@@ -140,8 +142,10 @@ void System::draw(int width, int height, const Game::Game &game) {
             double aspect = (double) width / (double) height;
             if (aspect > ref_aspect) {
                 xratio = yratio * aspect;
+                pixscale = (float) height * (1.0f / 1080.0f);
             } else {
                 yratio = xratio / aspect;
+                pixscale = (float) width * (1.0f / 1920.0f);
             }
 
             projection = Mat4::perspective(
@@ -238,7 +242,9 @@ void System::draw(int width, int height, const Game::Game &game) {
             if (!text.empty()) {
                 bool load_font = !s.font;
                 if (load_font) {
-                    auto font = sg_font_new(s.typeface, 32.0f, nullptr);
+                    Log::debug("PIXSCALE: %f", pixscale);
+                    auto font = sg_font_new(
+                        s.typeface, FONT_SIZE * pixscale, nullptr);
                     if (s.font) {
                         sg_font_decref(s.font);
                     }
