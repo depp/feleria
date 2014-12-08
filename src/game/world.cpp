@@ -52,7 +52,8 @@ bool World::load() {
         w.m_center = Vec2{{ (float) sz->w * 0.5f, (float) sz->h * 0.5f }};
         w.m_height_min = sz->height_min;
         w.m_height_max = sz->height_max;
-        w.m_height_scale = (sz->height_max - sz->height_min) * (1.0f / 255.0f);
+        w.m_height_scale =
+            (sz->height_max - sz->height_min) * (1.0f / 255.0f);
         w.m_vertex_scale = sz->vert_scale;
     }
 
