@@ -224,9 +224,6 @@ void System::draw(int width, int height, const Game::Game &game) {
 
     // Draw sprites.
     if (m_sprite.prog.is_loaded()) {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
         auto &s = m_sprite;
         const auto &tex = s.sheet.texture();
         const auto &prog = s.prog;
@@ -257,7 +254,9 @@ void System::draw(int width, int height, const Game::Game &game) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex.tex);
 
+        glEnable(GL_DEPTH_TEST);
         glDrawArrays(GL_TRIANGLES, 0, s.array.size());
+        glDisable(GL_DEPTH_TEST);
 
         sg_opengl_checkerror("System::draw sprite");
     }
