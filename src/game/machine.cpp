@@ -10,6 +10,7 @@ namespace Game {
 
 namespace {
 const int MACHINE_SPEED = 1000;
+const float TEXT_PERSIST = 0.5f;
 
 #include "data/opcode.enum.hpp"
 #include "data/opcode.array.hpp"
@@ -151,6 +152,8 @@ void Machine::reset() {
     m_character = -1;
     m_textserial++;
     m_text.clear();
+    m_texttime = 0.0f;
+    m_textsel = -1;
 }
 
 bool Machine::jump(const std::string &name) {
@@ -169,8 +172,24 @@ bool Machine::jump(const std::string &name) {
     } while (0)
 
 void Machine::run(Game &game) {
-    bool wastext = !m_text.empty();
-    (void) &game;
+    int ntext = (int) m_text.size();
+    if (ntext > 0) {
+        m_texttime += game.frame_delta();
+        if (m_texttime > TEXT_PERSIST) {
+            using namespace Control;
+            unsigned input = game.frame_input().new_buttons;
+            bool select = input & button_mask(Button::ACTION_1);
+            // bool up = input & button_mask(Button::MOVE_UP);
+            // bool down = input & button_mask(Button::MOVE_DOWN);
+            if (select) {
+                m_pc = m_text[m_textsel].target;
+                m_text.clear();
+                m_textserial++;
+                m_textsel = -1;
+            }
+        }
+    }
+
     {
         int sz = m_script.memory_size();
         m_memory.resize(sz, 0);
@@ -241,6 +260,7 @@ void Machine::run(Game &game) {
                 m_text.clear();
                 m_textserial++;
                 m_text.push_back(TextLine { text, 0, r.get_pc() });
+                m_textsel = 0;
                 r.halt();
             }
             break;
@@ -307,7 +327,7 @@ void Machine::run(Game &game) {
     }
 exit:
     m_pc = r.get_pc();
-    if (wastext || !m_text.empty()) {
+    if (ntext > 0 || !m_text.empty()) {
         game.frame_input().clear();
     }
 }

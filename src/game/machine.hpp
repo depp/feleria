@@ -25,6 +25,8 @@ private:
     std::vector<int> m_memory;
     unsigned m_textserial;
     std::vector<TextLine> m_text;
+    float m_texttime;
+    int m_textsel;
 
 public:
     // ============================================================
