@@ -11,12 +11,23 @@ namespace {
 
 const char WORLD_MAGIC[16] = "Feleria World";
 
+struct SizeInfo {
+    unsigned short w, h;
+    float height_scale;
+    Vec3 vert_scale;
+};
+
 }
 
 World::World()
-    : m_vertex_data(nullptr), m_vertex_size(0),
-      m_size(IVec2::zero()), m_center(Vec2::zero()),
-      m_heightmap(nullptr) { }
+    : m_data(),
+      m_vertex_data(std::pair<const void *, std::size_t>(nullptr, 0)),
+      m_size(IVec2::zero()),
+      m_center(Vec2::zero()),
+      m_height_scale(1.0f),
+      m_vertex_scale{{ 1.0f, 1.0f, 1.0f }},
+      m_heightmap(nullptr),
+      m_tilemap(nullptr) { }
 
 bool World::load() {
     World w;
@@ -30,13 +41,15 @@ bool World::load() {
 
     {
         auto chunk = chunks.get("SIZE");
-        if (chunk.second != 4) {
+        if (chunk.second != sizeof(struct SizeInfo)) {
             return false;
         }
-        const unsigned short *d =
-            reinterpret_cast<const unsigned short *>(chunk.first);
-        w.m_size = IVec2{{ d[0], d[1] }};
-        w.m_center = Vec2{{ (float) d[0] * 0.5f, (float) d[1] * 0.5f }};
+        const SizeInfo *sz =
+            reinterpret_cast<const SizeInfo *>(chunk.first);
+        w.m_size = IVec2{{ sz->w, sz->h }};
+        w.m_center = Vec2{{ (float) sz->w * 0.5f, (float) sz->h * 0.5f }};
+        w.m_height_scale = sz->height_scale;
+        w.m_vertex_scale = sz->vert_scale;
     }
 
     {
@@ -44,8 +57,7 @@ bool World::load() {
         if (!chunk.second) {
             return false;
         }
-        w.m_vertex_data = chunk.first;
-        w.m_vertex_size = chunk.second;
+        w.m_vertex_data = chunk;
     }
 
     std::size_t tilesz = (std::size_t) w.m_size[0] * w.m_size[1];
@@ -70,8 +82,8 @@ bool World::load() {
     return true;
 }
 
-float World::height(Vec2 pos) const {
-    Vec2 rpos = pos - m_center;
+float World::height_at(Vec2 pos) const {
+    Vec2 rpos = pos + m_center;
     int x = (int) rpos[0], y = (int) rpos[1];
     int w = m_size[0], h = m_size[1];
     if (x < 0 || y < 0 || x >= w - 1 || y >= h - 1)
@@ -83,7 +95,7 @@ float World::height(Vec2 pos) const {
     float fx = std::fmod(rpos[0], 1.0f), fy = std::fmod(rpos[1], 1.0f);
     float v0 = v00 + (v01 - v00) * fx;
     float v1 = v10 + (v11 - v10) * fx;
-    return v0 + (v1 - v0) * fy;
+    return (v0 + (v1 - v0) * fy) * m_height_scale;
 }
 
 }

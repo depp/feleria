@@ -28,9 +28,8 @@ private:
         Base::Program<Shader::World> prog;
         GLuint buffer;
         GLsizei count;
-        IVec2 size;
 
-        SysWorld() : buffer(0), size(IVec2::zero()) {}
+        SysWorld() : buffer(0), count(0) {}
     };
 
     SysSprite m_sprite;

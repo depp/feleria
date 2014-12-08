@@ -13,22 +13,25 @@ const double MAX_UPDATE = 1.0;
 }
 
 Game::Game()
-    : m_frametime(0.0), m_curtime(0.0), m_dt(DEFAULT_DT) {
-    m_person.push_back(Person(Vec2{{0.0f, 0.0f}}, Direction::LEFT));
-    auto &p = m_person.back();
+    : m_dt(DEFAULT_DT), m_frametime(0.0), m_curtime(0.0),
+      m_dtime(0.0f) {
+    Person p(Vec2::zero(), Direction::LEFT);
     p.set_part(Part::BOTTOM, Sprite::GIRL_BOT);
     p.set_part(Part::TOP, Sprite::GIRL_TOP);
     p.set_part(Part::HEAD, Sprite::GIRL_HEAD);
     p.set_part(Part::ITEM1, Sprite::ITEM_SWORD);
-    m_person.push_back(Person(Vec2{{116.0f, 108.0f}}, Direction::RIGHT));
+    add_person(p);
 }
 
 Game::~Game() {}
 
-void Game::load() {
+bool Game::load() {
+    bool success = true;
     if (!m_world.load()) {
-        Log::abort("Could not load world.");
+        Log::warn("Could not load world.");
+        success = false;
     }
+    return success;
 }
 
 void Game::handle_event(const sg_event &evt) {
@@ -36,43 +39,52 @@ void Game::handle_event(const sg_event &evt) {
 }
 
 void Game::update(double time) {
-    double delta = time - m_curtime;
+    double dtime = m_dt;
+    m_dtime = (float) dtime;
     if (m_curtime <= 0.0) {
-        m_curtime = time;
-        m_frametime = time;
-    } else if (delta > MAX_UPDATE) {
-        Log::warn("lag");
-        double skip = delta - MAX_UPDATE;
-        m_frametime += skip;
-        m_curtime += skip;
-    }
-
-    double dtime = m_dt, start_time = m_frametime;
-    if (start_time <= 0.0) {
-        m_frametime = time;
-        m_curtime = time;
-        advance(time, (float) dtime,
-                m_input.read(0.0, time, true));
+        m_curtime = m_frametime = time;
+        m_frame_input = m_input.read(0.0, time, true);
+        advance();
         return;
     }
 
+    double delta = time - m_curtime;
+    if (delta > MAX_UPDATE) {
+        Log::warn("lag");
+        m_frametime += delta - MAX_UPDATE;
+    }
+
+    m_curtime = time;
+
+    double start_time = m_frametime;
     while (true) {
         double end_time = start_time + dtime;
         if (end_time > time)
             break;
-        advance(end_time, (float) dtime,
-                m_input.read(start_time, end_time, true));
-        m_frametime = start_time = end_time;
+        m_frametime = end_time;
+        m_frame_input = m_input.read(start_time, end_time, true);
+        advance();
+        start_time = end_time;
     }
-
-    m_curtime = time;
 }
 
-void Game::advance(double abstime, float dtime,
-                   const Control::FrameInput &input) {
-    m_person[0].set_input(input.move, 0);
+void Game::add_person(const Person &person) {
+    m_person_pending.push_back(person);
+}
+
+void Game::advance() {
+    if (!m_person.empty()) {
+        m_person[0].set_input(m_frame_input.move, 0);
+    }
+
+    for (std::size_t pos = 0; pos < m_person_pending.size(); pos++) {
+        m_person.push_back(m_person_pending[pos]);
+        m_person.back().initialize(*this);
+    }
+    m_person_pending.clear();
+
     for (auto &p : m_person) {
-        p.update(abstime, dtime);
+        p.update(*this);
     }
 }
 

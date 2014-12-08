@@ -62,13 +62,12 @@ void System::load(const Game::Game &game) {
         glDeleteBuffers(1, &s.buffer);
         glGenBuffers(1, &s.buffer);
         const auto &w = game.world();
-        auto data = w.vertex_data();
-        auto size = w.vertex_size();
+        auto vdata = w.vertex_data();
         glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
-        glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER,
+                     vdata.second, vdata.first, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        s.count = size / 8;
-        s.size = w.size();
+        s.count = vdata.second / 8;
     }
 }
 
@@ -165,6 +164,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     // Draw world.
     if (m_world.prog.is_loaded()) {
         const auto &s = m_world;
+        const auto &w = game.world();
         const auto &prog = s.prog;
 
         glUseProgram(prog.prog());
@@ -184,10 +184,9 @@ void System::draw(int width, int height, const Game::Game &game) {
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        float wscale = 64.0f / 512.0f;
-        float wvscale = 0.5f;
-        Transform xform = Transform::scale(Vec3{{
-                    wscale, wscale, wvscale * wscale }});
+        auto scale = w.vertex_scale();
+        Mat4 modelview = worldview * Mat4::scale(scale);
+        Mat3 normalmat = Mat3::identity();
         Color terrain_color[8] = {
             Color::palette(1),  Color::palette(2),
             Color::palette(10), Color::palette(20),
@@ -198,17 +197,16 @@ void System::draw(int width, int height, const Game::Game &game) {
             -5.0f, +8.0f, 2.5f, 7.0f,
             -100.0f, -100.0f, -100.0f, -100.0f
         };
-        float izscale = 1.0f / (wvscale * wscale);
-        for (int i = 0; i < 8; i++)
-            terrain_color[i].v[3] = izscale * height[i];
+        for (int i = 0; i < 8; i++) {
+            terrain_color[i].v[3] = height[i] * (1.0f / scale[2]);
+        }
 
-        xform.view = worldview * xform.view;
         glUniformMatrix4fv(prog->u_modelview, 1, GL_FALSE,
-                           xform.view.data());
+                           modelview.data());
         glUniformMatrix4fv(prog->u_projection, 1, GL_FALSE,
                            projection.data());
         glUniformMatrix3fv(prog->u_normalmat, 1, GL_FALSE,
-                           xform.normal.data());
+                           normalmat.data());
         glUniform4fv(prog->u_terrain_color, 8, &terrain_color[0].v[0]);
         glUniform3fv(prog->u_light_dir, LIGHT_COUNT, LIGHT_DIR[0]);
         glUniform3fv(prog->u_light_color, LIGHT_COUNT, LIGHT_COLOR[0]);

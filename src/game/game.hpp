@@ -9,28 +9,32 @@
 #include "world.hpp"
 #include <vector>
 namespace Game {
-namespace Control {
-struct FrameInput;
-}
 class Person;
 
 class Game {
 private:
-    double m_frametime, m_curtime, m_dt;
+    double m_dt;
+    double m_frametime, m_curtime;
+    float m_dtime;
     Control::Input m_input;
     Control::Bindings m_bindings;
+    Control::FrameInput m_frame_input;
 
     World m_world;
-    std::vector<Person> m_person;
+    std::vector<Person> m_person, m_person_pending;
 
 public:
+    // ============================================================
+    // Entry points
+    // ============================================================
+
     Game();
     Game(const Game &) = delete;
     ~Game();
     Game &operator=(const Game &) = delete;
 
     /// Load all resources.
-    void load();
+    bool load();
 
     /// Handle input from the user.
     void handle_event(const sg_event &evt);
@@ -38,7 +42,30 @@ public:
     /// Update the world.
     void update(double time);
 
-    /// Get the fraction of a frame.
+    // ============================================================
+    // Modifying the game
+    // ============================================================
+
+    /// Add a person to the world.
+    void add_person(const Person &person);
+
+    // ============================================================
+    // Game queries
+    // ============================================================
+
+    /// Get the absolute time for the current frame.
+    double frame_abstime() const {
+        return m_frametime;
+    }
+
+    /// Get the delta time for the current frame.  Used for updating
+    /// the physics simulation.
+    float frame_delta() const {
+        return m_dtime;
+    };
+
+    /// Get the fraction of a frame elapsed since the last update.
+    /// Used for interpolating between frames.
     float frame_frac() const {
         return (float) ((m_curtime - m_frametime) / m_dt);
     }
@@ -54,9 +81,7 @@ public:
     }
 
 private:
-    void advance(double abstime, float dtime,
-                 const Control::FrameInput &input);
-
+    void advance();
 };
 
 }

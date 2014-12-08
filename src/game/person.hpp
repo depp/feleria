@@ -7,6 +7,7 @@
 #include "defs.hpp"
 #include "sprite.hpp"
 namespace Game {
+class Game;
 
 // Parts of a person.
 static const int PART_COUNT = 7;
@@ -100,29 +101,45 @@ private:
     Vec2 m_steppos;
     // The current frame of the walking animation.
     int m_stepframe;
-    // The time at which walking will revert to standing.
-    double m_standtime;
+    // Counter until walking turns into standing.
+    float m_standtime;
 
 public:
-    // Create a person at the given location.
+    // ============================================================
+    // Entry points
+    // ============================================================
+
+    /// Create a person at the given location.
     Person(Vec2 pos, Direction dir);
 
-    // Update the person's state.  Should be called exactly once per
-    // game update tick.
-    void update(double abstime, float dtime);
+    /// Initialize the person's state.  Called exactly once, after the
+    /// person is added to the game.
+    void initialize(Game &game);
 
-    // Set the input controlling this person's movement.
+    /// Update the person's state.  Should be called exactly once per
+    /// game update tick.
+    void update(Game &game);
+
+    // ============================================================
+    // Modifying
+    // ============================================================
+
+    /// Set the input controlling this person's movement.
     void set_input(Vec2 move, unsigned flags) {
         m_in_flags = flags;
         m_in_move = move;
     };
 
-    // Set the apperance of a part of the person.
+    /// Set the apperance of a part of the person.
     void set_part(Part part, Sprite sprite) {
         m_part[static_cast<int>(part)] = static_cast<int>(sprite);
     }
 
-    // Get the current facing direction.
+    // ============================================================
+    // Queries
+    // ============================================================
+
+    /// Get the current facing direction.
     Direction direction() const {
         return m_dir;
     }

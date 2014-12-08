@@ -3,11 +3,13 @@
    licensed under the terms of the 2-clause BSD license.  For more
    information, see LICENSE.txt. */
 #include "person.hpp"
+#include "game.hpp"
 
 namespace Game {
 
 namespace {
 
+const float HEIGHT          = 3.0;      // unit
 const float MOVE_SPEED      = 12.0f;    // unit/s
 const float ACCELERATION    = 50.0f;    // unit/s^2
 const float STEP_DISTANCE   = 1.0f;     // unit
@@ -60,10 +62,16 @@ Person::Person(Vec2 pos, Direction dir) {
     m_vel = Vec2::zero();
     m_steppos = pos;
     m_stepframe = 0;
-    m_standtime = -2.0 * STAND_TIME;
+    m_standtime = 0.0f;
 }
 
-void Person::update(double abstime, float dtime) {
+void Person::initialize(Game &game) {
+    m_posz[0] = m_posz[1] = game.world().height_at(m_pos[0]) + HEIGHT * 0.5f;
+}
+
+void Person::update(Game &game) {
+    float dtime = game.frame_delta();
+
     // Calculate velocity.
     Vec2 v0, v1;
     {
@@ -80,6 +88,8 @@ void Person::update(double abstime, float dtime) {
     m_in_move = Vec2::zero();
     m_pos[0] = m_pos[1];
     m_pos[1] = m_pos[1] + (v0 + v1) * (0.5 * dtime);
+    m_posz[0] = m_posz[1];
+    m_posz[1] = game.world().height_at(m_pos[1]) + HEIGHT * 0.5f;
     m_vel = v1;
 
     // Update sprites
@@ -103,12 +113,16 @@ void Person::update(double abstime, float dtime) {
                     (std::floor(nstep) * STEP_DISTANCE / stepd);
                 m_stepframe = (m_stepframe + (int) nstep) % WALK_COUNT;
                 walk = WALK_FRAME[m_stepframe];
-                m_standtime = abstime + STAND_TIME;
+                m_standtime = STAND_TIME;
                 m_dir = direction_from_vec(step);
-            } else if (abstime > m_standtime) {
-                walk = WALK_FRAME[WALK_STAND];
             } else {
-                walk = WALK_FRAME[m_stepframe];
+                m_standtime -= dtime;
+                if (m_standtime > 0.0f) {
+                    walk = WALK_FRAME[m_stepframe];
+                } else {
+                    m_standtime = 0.0f;
+                    walk = WALK_FRAME[WALK_STAND];
+                }
             }
 
             frames[static_cast<int>(Group::LEGS)] = walk.legs_frame;
