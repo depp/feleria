@@ -15,8 +15,9 @@ namespace Graphics {
 namespace {
 
 const bool debug_trace = false;
-const float FONT_SIZE = 72.0f;
+const float FONT_SIZE = 48.0f;
 const float BOX_SIZE = 1024.0f;
+const Vec2 TEXT_POS {{ -425.0f, 265.0f }};
 
 using Base::Orientation;
 
@@ -163,17 +164,9 @@ void System::draw(int width, int height, const Game::Game &game) {
             if (aspect > ref_aspect) {
                 xratio = yratio * aspect;
                 pixscale = (float) height * (1.0f / 1080.0f);
-                /*
-                inner_size = Vec2 {{ (float) width,
-                                     (float) height * (9.0f / 16.0f) }};
-                */
             } else {
                 yratio = xratio / aspect;
                 pixscale = (float) width * (1.0f / 1920.0f);
-                /*
-                inner_size = Vec2 {{ (float) height * (16.0f / 9.0f),
-                                     (float) width }};
-                */
             }
 
             projection = Mat4::perspective(
@@ -279,7 +272,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         }
 
         Vec2 vertscale { 2.0f / width, 2.0f / height };
-        Vec2 pos { 0.0f, 0.0f };
+        Vec2 pos = TEXT_POS * pixscale;
         int n = (int) std::min((std::size_t) NLINE, text.size());
         for (int i = 0; i < n; i++) {
             const char *ltext = text[i].text;
@@ -296,12 +289,17 @@ void System::draw(int width, int height, const Game::Game &game) {
                 break;
             }
             s.line[i].layout = layout;
+            sg_textmetrics metrics;
+            sg_textlayout_getmetrics(layout, &metrics);
+            Vec2 lpos = pos;
+            lpos[0] -= (float) metrics.logical.x0;
+            lpos[1] -= (float) metrics.logical.y0;
             {
                 float *v = s.line[i].vertxform;
                 v[0] = vertscale[0];
                 v[1] = vertscale[1];
-                v[2] = pos[0] * vertscale[0];
-                v[3] = pos[1] * vertscale[1];
+                v[2] = lpos[0] * vertscale[0];
+                v[3] = lpos[1] * vertscale[1] - 1.0f;
             }
             s.empty = false;
         }
