@@ -375,6 +375,8 @@ void System::draw(int width, int height, const Game::Game &game) {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_ALWAYS);
         glDepthRange(0.0, 0.0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
         for (int i = 0; i < NLINE; i++) {
             const auto &line = s.line[i];
@@ -389,6 +391,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         glUseProgram(0);
         glDepthFunc(GL_LESS);
         glDepthRange(0.0, 1.0);
+        glDisable(GL_BLEND);
     }
 
     // Draw world.
