@@ -40,7 +40,7 @@ private:
 
         struct Line {
             sg_textlayout *layout;
-            Vec2 pos;
+            float vertxform[4];
         };
 
         Base::Program<Shader::Text> prog;

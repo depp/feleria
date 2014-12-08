@@ -52,7 +52,6 @@ System::SysText::SysText()
     : typeface(nullptr), font(nullptr), empty(true), serial(0xffffffff) {
     for (int i = 0; i < LINE_COUNT; i++) {
         line[i].layout = nullptr;
-        line[i].pos = Vec2::zero();
     }
 }
 
@@ -233,7 +232,6 @@ void System::draw(int width, int height, const Game::Game &game) {
                     sg_textlayout_free(s.line[i].layout);
                 }
                 s.line[i].layout = nullptr;
-                s.line[i].pos = Vec2::zero();
             }
             s.empty = true;
 
@@ -248,7 +246,7 @@ void System::draw(int width, int height, const Game::Game &game) {
                 }
             }
 
-            // Vec2 pos = Vec2::zero();
+            float vertxform[4] = {2.0f / width, 2.0f / height, -0.4f, -0.4f};
             int n = (int) std::min((std::size_t) NLINE, text.size());
             for (int i = 0; i < n; i++) {
                 const char *ltext = text[i].text;
@@ -265,7 +263,40 @@ void System::draw(int width, int height, const Game::Game &game) {
                     break;
                 }
                 s.line[i].layout = layout;
+                for (int j = 0; j < 4; j++) {
+                    s.line[i].vertxform[j] = vertxform[j];
+                }
+                s.empty = false;
             }
+        }
+
+        if (!s.empty) {
+            const auto &prog = s.prog;
+
+            glUseProgram(prog.prog());
+
+            // texscale handled by draw()
+            glUniform1i(prog->u_texture, 0);
+            Color color = Color::palette(21);
+            glUniform4fv(prog->u_color, 1, color.v);
+
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_ALWAYS);
+            glDepthRange(0.0, 0.0);
+
+            for (int i = 0; i < NLINE; i++) {
+                const auto &line = s.line[i];
+                if (!line.layout) {
+                    break;
+                }
+                glUniform4fv(prog->u_vertxform, 1, line.vertxform);
+                sg_textlayout_draw(
+                    line.layout, prog->a_vert, prog->u_texscale);
+            }
+
+            glUseProgram(0);
+            glDepthFunc(GL_LESS);
+            glDepthRange(0.0, 1.0);
         }
     }
 
