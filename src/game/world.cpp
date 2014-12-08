@@ -148,15 +148,17 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
     if (y1 >= h) y1 = h;
     int ignore = is_inside ? 1 : 0;
     EdgeTrace best = TRACE_INSIDE;
+    float best2 = best.first * best.first;
     for (int yi = y0; yi < y1; yi++) {
         for (int xi = x0; xi < x1; xi++) {
             tile = tc[m_tilemap[yi*w+xi]];
             EdgeTrace ttrace;
+            Vec2 vp;
             if (tile < 2) {
                 if (tile == ignore) {
                     continue;
                 }
-                if (x == xi) {
+                if (x == xi && false) {
                     if (y > yi) {
                         ttrace = EdgeTrace(
                             (float) (y - yi - 1) + fy,
@@ -166,7 +168,9 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
                             (float) (yi - y) - fy,
                             Vec2 {{ 0.0f, +1.0f }});
                     }
-                } else if (y == yi) {
+                    goto have_trace;
+                }
+                if (y == yi && false) {
                     if (x > xi) {
                         ttrace = EdgeTrace(
                             (float) (x - xi - 1) + fx,
@@ -176,14 +180,35 @@ World::EdgeTrace World::edge_distance(Vec2 pos, bool is_player) const {
                             (float) (xi - x) - fx,
                             Vec2 {{ +1.0f, 0.0f }});
                     }
-                } else {
-                    continue;
+                    goto have_trace;
                 }
+                vp[0] = (float) (xi + (x > xi));
+                vp[1] = (float) (yi + (y > yi));
+                goto point_distance;
             } else {
                 continue;
             }
+
+        point_distance:
+            {
+                Vec2 dp = vp - rpos;
+                float d2 = dp.mag2();
+                if (d2 < best2) {
+                    float d = std::sqrt(d2);
+                    if (d < 1e-4) {
+                        best = EdgeTrace(d, Vec2::zero());
+                    } else {
+                        best = EdgeTrace(d, dp * (1.0f / d));
+                    }
+                    best2 = d2;
+                }
+            }
+            continue;
+
+        have_trace:
             if (ttrace.first < best.first) {
                 best = ttrace;
+                best2 = ttrace.first * ttrace.first;
             }
         }
     }
