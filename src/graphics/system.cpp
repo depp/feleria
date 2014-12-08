@@ -16,6 +16,7 @@ namespace {
 
 const bool debug_trace = false;
 const float FONT_SIZE = 72.0f;
+const float BOX_SIZE = 1024.0f;
 
 using Base::Orientation;
 
@@ -50,7 +51,11 @@ const float SPRITE_SCALE = 0.2f;
 }
 
 System::SysText::SysText()
-    : typeface(nullptr), font(nullptr), empty(true), serial(0xffffffff) {
+    : typeface(nullptr),
+      font(nullptr),
+      empty(true),
+      serial(0xffffffff),
+      buffer(0){
     for (int i = 0; i < LINE_COUNT; i++) {
         line[i].layout = nullptr;
     }
@@ -98,6 +103,9 @@ bool System::load(const Game::Game &game) {
         if (!s.prog.load("text", "text")) {
             success = false;
         }
+        if (!s.uiprog.load("ui", "ui")) {
+            success = false;
+        }
         const char *path = "font/Alegreya-Bold";
         auto typeface = sg_typeface_file(path, std::strlen(path), nullptr);
         if (typeface == nullptr) {
@@ -107,6 +115,17 @@ bool System::load(const Game::Game &game) {
                 sg_typeface_decref(s.typeface);
             }
             s.typeface = typeface;
+        }
+        if (!s.buffer) {
+            glGenBuffers(1, &s.buffer);
+        }
+        if (!s.textbox.load("image/textbox")) {
+            success = false;
+        } else {
+            glBindTexture(GL_TEXTURE_2D, s.textbox.tex);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
     return success;
@@ -122,6 +141,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     Mat4 worldview;
     Quat camera_angle;
     float pixscale;
+    // Vec2 inner_size;
     {
         // Reference aspect ratio.
         const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
@@ -143,9 +163,17 @@ void System::draw(int width, int height, const Game::Game &game) {
             if (aspect > ref_aspect) {
                 xratio = yratio * aspect;
                 pixscale = (float) height * (1.0f / 1080.0f);
+                /*
+                inner_size = Vec2 {{ (float) width,
+                                     (float) height * (9.0f / 16.0f) }};
+                */
             } else {
                 yratio = xratio / aspect;
                 pixscale = (float) width * (1.0f / 1920.0f);
+                /*
+                inner_size = Vec2 {{ (float) height * (16.0f / 9.0f),
+                                     (float) width }};
+                */
             }
 
             projection = Mat4::perspective(
@@ -220,90 +248,147 @@ void System::draw(int width, int height, const Game::Game &game) {
         sg_opengl_checkerror("System::draw upload sprite");
     }
 
-    // Draw text.
-    if (m_text.prog.is_loaded()) {
-        auto &s = m_text;
+    const int NLINE = SysText::LINE_COUNT;
+
+    // Compute text layout.
+    if (m_text.serial != game.machine().text_serial()) {
         const auto &vm = game.machine();
-        const int NLINE = SysText::LINE_COUNT;
+        auto &s = m_text;
         const auto &text = vm.text();
+        s.serial = vm.text_serial();
 
-        // Recompute text layout if it changed.
-        if (s.serial != vm.text_serial()) {
-            s.serial = vm.text_serial();
-
-            for (int i = 0; i < NLINE; i++) {
-                if (s.line[i].layout) {
-                    sg_textlayout_free(s.line[i].layout);
-                }
-                s.line[i].layout = nullptr;
+        for (int i = 0; i < NLINE; i++) {
+            if (s.line[i].layout) {
+                sg_textlayout_free(s.line[i].layout);
             }
-            s.empty = true;
+            s.line[i].layout = nullptr;
+        }
+        s.empty = true;
 
-            if (!text.empty()) {
-                bool load_font = !s.font;
-                if (load_font) {
-                    Log::debug("PIXSCALE: %f", pixscale);
-                    auto font = sg_font_new(
-                        s.typeface, FONT_SIZE * pixscale, nullptr);
-                    if (s.font) {
-                        sg_font_decref(s.font);
-                    }
-                    s.font = font;
+        if (!text.empty()) {
+            bool load_font = !s.font;
+            if (load_font) {
+                Log::debug("PIXSCALE: %f", pixscale);
+                auto font = sg_font_new(
+                    s.typeface, FONT_SIZE * pixscale, nullptr);
+                if (s.font) {
+                    sg_font_decref(s.font);
                 }
-            }
-
-            float vertxform[4] = {2.0f / width, 2.0f / height, -0.4f, -0.4f};
-            int n = (int) std::min((std::size_t) NLINE, text.size());
-            for (int i = 0; i < n; i++) {
-                const char *ltext = text[i].text;
-                auto flow = sg_textflow_new(nullptr);
-                if (!flow) {
-                    break;
-                }
-                sg_textflow_setfont(flow, s.font);
-                sg_textflow_addtext(flow, ltext, std::strlen(ltext));
-
-                auto layout = sg_textlayout_new(flow, nullptr);
-                sg_textflow_free(flow);
-                if (!layout) {
-                    break;
-                }
-                s.line[i].layout = layout;
-                for (int j = 0; j < 4; j++) {
-                    s.line[i].vertxform[j] = vertxform[j];
-                }
-                s.empty = false;
+                s.font = font;
             }
         }
 
-        if (!s.empty) {
-            const auto &prog = s.prog;
-
-            glUseProgram(prog.prog());
-
-            // texscale handled by draw()
-            glUniform1i(prog->u_texture, 0);
-            Color color = Color::palette(21);
-            glUniform4fv(prog->u_color, 1, color.v);
-
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_ALWAYS);
-            glDepthRange(0.0, 0.0);
-
-            for (int i = 0; i < NLINE; i++) {
-                const auto &line = s.line[i];
-                if (!line.layout) {
-                    break;
-                }
-                glUniform4fv(prog->u_vertxform, 1, line.vertxform);
-                sg_textlayout_draw(
-                    line.layout, prog->a_vert, prog->u_texscale);
+        Vec2 vertscale { 2.0f / width, 2.0f / height };
+        Vec2 pos { 0.0f, 0.0f };
+        int n = (int) std::min((std::size_t) NLINE, text.size());
+        for (int i = 0; i < n; i++) {
+            const char *ltext = text[i].text;
+            auto flow = sg_textflow_new(nullptr);
+            if (!flow) {
+                break;
             }
+            sg_textflow_setfont(flow, s.font);
+            sg_textflow_addtext(flow, ltext, std::strlen(ltext));
 
-            glUseProgram(0);
-            glDepthFunc(GL_LESS);
-            glDepthRange(0.0, 1.0);
+            auto layout = sg_textlayout_new(flow, nullptr);
+            sg_textflow_free(flow);
+            if (!layout) {
+                break;
+            }
+            s.line[i].layout = layout;
+            {
+                float *v = s.line[i].vertxform;
+                v[0] = vertscale[0];
+                v[1] = vertscale[1];
+                v[2] = pos[0] * vertscale[0];
+                v[3] = pos[1] * vertscale[1];
+            }
+            s.empty = false;
         }
+
+        {
+            float boxsize = BOX_SIZE * pixscale;
+            float x0 = -0.5f * boxsize * vertscale[0];
+            float x1 = +0.5f * boxsize * vertscale[0];
+            float y0 = -1.0f;
+            float y1 = -1.0f + vertscale[1] * boxsize * 0.5f;
+            Log::debug("BOXSIZE: %f %f %f %f", x0, x1, y0, y1);
+            float vert[24] = {
+                x0, y0, 0.0f, 1.0f,
+                x1, y0, 1.0f, 1.0f,
+                x0, y1, 0.0f, 0.0f,
+                x0, y1, 0.0f, 0.0f,
+                x1, y0, 1.0f, 1.0f,
+                x1, y1, 1.0f, 0.0f
+            };
+            glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vert), vert,
+                         GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+    }
+
+    // Draw text box.
+    if (m_text.uiprog.is_loaded()) {
+        const auto &s = m_text;
+        const auto &prog = s.uiprog;
+
+        glUseProgram(prog.prog());
+
+        glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
+        if (prog->a_vert >= 0) {
+            glEnableVertexAttribArray(prog->a_vert);
+            glVertexAttribPointer(
+                prog->a_vert, 4, GL_FLOAT, GL_FALSE,
+                0, nullptr);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glUniform1i(prog->u_texture, 0);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_ALWAYS);
+        glDepthRange(0.0, 0.0);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, s.textbox.tex);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glUseProgram(0);
+        glDepthFunc(GL_LESS);
+        glDepthRange(0.0, 1.0);
+    }
+
+    // Draw text.
+    if (m_text.prog.is_loaded() && !m_text.empty) {
+        const auto &s = m_text;
+        const auto &prog = s.prog;
+
+        glUseProgram(prog.prog());
+
+        // texscale handled by draw()
+        glUniform1i(prog->u_texture, 0);
+        Color color = Color::palette(21);
+        glUniform4fv(prog->u_color, 1, color.v);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_ALWAYS);
+        glDepthRange(0.0, 0.0);
+
+        for (int i = 0; i < NLINE; i++) {
+            const auto &line = s.line[i];
+            if (!line.layout) {
+                break;
+            }
+            glUniform4fv(prog->u_vertxform, 1, line.vertxform);
+            sg_textlayout_draw(
+                line.layout, prog->a_vert, prog->u_texscale);
+        }
+
+        glUseProgram(0);
+        glDepthFunc(GL_LESS);
+        glDepthRange(0.0, 1.0);
     }
 
     // Draw world.

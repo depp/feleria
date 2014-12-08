@@ -58,6 +58,18 @@ struct World {
     GLint u_light_color;
 };
 
+/// Uniforms and attributes for the "ui" shader.
+struct Ui {
+    static const Base::ShaderField UNIFORMS[];
+    static const Base::ShaderField ATTRIBUTES[];
+
+    // Attributes
+    GLint a_vert;
+
+    // Uniforms
+    GLint u_texture;
+};
+
 }
 }
 #endif

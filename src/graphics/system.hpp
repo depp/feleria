@@ -44,11 +44,14 @@ private:
         };
 
         Base::Program<Shader::Text> prog;
+        Base::Program<Shader::Ui> uiprog;
         sg_typeface *typeface;
         sg_font *font;
         bool empty;
         Line line[LINE_COUNT];
         unsigned serial;
+        GLuint buffer;
+        Base::Texture textbox;
 
         SysText();
     };

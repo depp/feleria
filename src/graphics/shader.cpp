@@ -61,5 +61,17 @@ const ShaderField TYPE::ATTRIBUTES[] = {
 };
 #undef TYPE
 
+#define TYPE Ui
+const ShaderField TYPE::UNIFORMS[] = {
+    UFIELD(texture),
+    { nullptr, 0 }
+};
+
+const ShaderField TYPE::ATTRIBUTES[] = {
+    AFIELD(vert),
+    { nullptr, 0 }
+};
+#undef TYPE
+
 }
 }
