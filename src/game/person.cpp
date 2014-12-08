@@ -143,7 +143,7 @@ void Person::update(Game &game) {
                     continue;
                 Group group = PART_GROUP[part];
                 m_sprite[pos++] = PartSprite::create(
-                    static_cast<Sprite>(sprite),
+                    sprite,
                     frames[static_cast<int>(group)],
                     0,
                     offsets[part]);

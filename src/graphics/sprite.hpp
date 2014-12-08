@@ -9,34 +9,9 @@
 #include "base/file.hpp"
 #include "base/orientation.hpp"
 #include "base/image.hpp"
-#include "game/sprite.hpp"
 #include <vector>
 struct sg_sprite;
 namespace Graphics {
-
-class SpriteSheet {
-private:
-    struct GroupInfo;
-
-    Base::Data m_data;
-    std::vector<GroupInfo> m_group;
-    Base::Texture m_texture;
-
-public:
-    SpriteSheet();
-    SpriteSheet(const SpriteSheet &) = delete;
-    ~SpriteSheet();
-    SpriteSheet &operator=(const SpriteSheet &) = delete;
-
-    /// Load the sprite data.
-    bool load();
-
-    /// Get sprite info.
-    const struct sg_sprite &get(Game::Sprite sprite, int nx, int ny) const;
-
-    /// Get the sprite texture.
-    const Base::Texture &texture() const { return m_texture; }
-};
 
 /// A part of a composite sprite.
 struct SpritePart {

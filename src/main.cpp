@@ -9,6 +9,7 @@
 #include "sg/record.h"
 #include "game/game.hpp"
 #include "graphics/system.hpp"
+using Base::Log;
 
 namespace {
 
@@ -19,7 +20,12 @@ Graphics::System *graphics;
 
 void sg_game_init(void) {
     game = new Game::Game;
-    game->load();
+    if (!game->load()) {
+        Log::abort("Could not load game data.");
+    }
+    if (!game->start_level("test")) {
+        Log::error("Could not load level.");
+    }
 }
 
 void sg_game_destroy(void) {}
@@ -36,7 +42,9 @@ void sg_game_event(union sg_event *evt) {
             graphics = nullptr;
         }
         graphics = new Graphics::System;
-        graphics->load(*game);
+        if (!graphics->load(*game)) {
+            Log::abort("Could not load graphics data.");
+        }
         break;
 
     case SG_EVENT_KDOWN:

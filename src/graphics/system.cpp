@@ -8,6 +8,7 @@
 #include "color.hpp"
 #include "game/game.hpp"
 #include "game/person.hpp"
+#include "base/image.hpp"
 namespace Graphics {
 
 namespace {
@@ -48,27 +49,39 @@ System::System() { }
 
 System::~System() { }
 
-void System::load(const Game::Game &game) {
+bool System::load(const Game::Game &game) {
+    bool success = true;
     {
         auto &s = m_sprite;
         s.prog.load("sprite", "sprite");
-        s.sheet.load();
+        if (!s.texture.load("image/sprite")) {
+            success = false;
+        } else {
+            glBindTexture(GL_TEXTURE_2D, s.texture.tex);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
         glDeleteBuffers(1, &s.buffer);
         glGenBuffers(1, &s.buffer);
     }
     {
         auto &s = m_world;
-        s.prog.load("world", "world");
-        glDeleteBuffers(1, &s.buffer);
-        glGenBuffers(1, &s.buffer);
-        const auto &w = game.world();
-        auto vdata = w.vertex_data();
-        glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
-        glBufferData(GL_ARRAY_BUFFER,
-                     vdata.second, vdata.first, GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        s.count = vdata.second / 8;
+        if (!s.prog.load("world", "world")) {
+            success = false;
+        } else {
+            glDeleteBuffers(1, &s.buffer);
+            glGenBuffers(1, &s.buffer);
+            const auto &w = game.world();
+            auto vdata = w.vertex_data();
+            glBindBuffer(GL_ARRAY_BUFFER, s.buffer);
+            glBufferData(GL_ARRAY_BUFFER,
+                         vdata.second, vdata.first, GL_STATIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            s.count = vdata.second / 8;
+        }
     }
+    return success;
 }
 
 void System::draw(int width, int height, const Game::Game &game) {
@@ -138,15 +151,14 @@ void System::draw(int width, int height, const Game::Game &game) {
         Vec3 up = camera_angle.transform(Vec3{{0.0f, SPRITE_SCALE, 0.0f}});
 
         auto &s = m_sprite;
+        const auto &sd = game.sprites();
         s.array.clear();
         for (const auto &person : game.person()) {
             auto dir = DIRECTION_INFO[static_cast<int>(person.direction())];
             SpritePart parts[Game::PART_COUNT], *op = parts;
-            auto partp = std::begin(person), parte = std::end(person);
-            for (; partp != parte; partp++) {
-                auto part = *partp;
+            for (auto part : person.sprite()) {
                 *op++ = SpritePart {
-                    &s.sheet.get(part.sprite(), part.frame(), dir.index),
+                    &sd.get_data(part.sprite(), part.frame(), dir.index),
                     part.offset()
                 };
             }
@@ -223,7 +235,6 @@ void System::draw(int width, int height, const Game::Game &game) {
     // Draw sprites.
     if (m_sprite.prog.is_loaded()) {
         auto &s = m_sprite;
-        const auto &tex = s.sheet.texture();
         const auto &prog = s.prog;
         glUseProgram(prog.prog());
 
@@ -246,11 +257,11 @@ void System::draw(int width, int height, const Game::Game &game) {
                            worldview.data());
         glUniformMatrix4fv(prog->u_projection, 1, GL_FALSE,
                            projection.data());
-        glUniform2fv(prog->u_texscale, 1, tex.scale);
+        glUniform2fv(prog->u_texscale, 1, s.texture.scale);
         glUniform1i(prog->u_texture, 0);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex.tex);
+        glBindTexture(GL_TEXTURE_2D, s.texture.tex);
 
         glEnable(GL_DEPTH_TEST);
         glDrawArrays(GL_TRIANGLES, 0, s.array.size());

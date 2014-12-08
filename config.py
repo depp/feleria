@@ -28,14 +28,10 @@ orientation.hpp
 quat.cpp
 random.cpp
 random.hpp
+range.hpp
 shader.cpp
 shader.hpp
 vec.hpp
-''')
-
-src.add(path='data', sources='''
-sprite.array.hpp
-sprite.enum.hpp
 ''')
 
 src.add(path='game', sources='''
@@ -45,6 +41,8 @@ defs.cpp
 defs.hpp
 game.cpp
 game.hpp
+level.cpp
+level.hpp
 person.cpp
 person.hpp
 sprite.cpp

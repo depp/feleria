@@ -5,6 +5,7 @@
 #ifndef LD_BASE_CHUNK_HPP
 #define LD_BASE_CHUNK_HPP
 #include "file.hpp"
+#include "range.hpp"
 #include <utility>
 namespace Base {
 
@@ -37,6 +38,15 @@ public:
 
     /// Get file chunk data.
     ChunkData get(const char *name) const;
+
+    /// Get file chunk data.
+    template<class T>
+    Range<T> get_array(const char *name) const {
+        auto chunk = get(name);
+        const T *first = reinterpret_cast<const T *>(chunk.first);
+        std::size_t count = chunk.second / sizeof(T);
+        return Range<T>(first, first + count);
+    }
 };
 
 }

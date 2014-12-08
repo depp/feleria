@@ -5,6 +5,7 @@
 #include "game.hpp"
 #include "control.hpp"
 #include "person.hpp"
+#include "level.hpp"
 namespace Game {
 
 namespace {
@@ -14,24 +15,38 @@ const double MAX_UPDATE = 1.0;
 
 Game::Game()
     : m_dt(DEFAULT_DT), m_frametime(0.0), m_curtime(0.0),
-      m_dtime(0.0f) {
-    Person p(Vec2::zero(), Direction::LEFT);
-    p.set_part(Part::BOTTOM, Sprite::GIRL_BOT);
-    p.set_part(Part::TOP, Sprite::GIRL_TOP);
-    p.set_part(Part::HEAD, Sprite::GIRL_HEAD);
-    p.set_part(Part::ITEM1, Sprite::ITEM_SWORD);
-    add_person(p);
-}
+      m_dtime(0.0f) { }
 
 Game::~Game() {}
 
 bool Game::load() {
     bool success = true;
+    if (!m_sprites.load()) {
+        Log::warn("Could not load sprites.");
+        success = false;
+    }
     if (!m_world.load()) {
         Log::warn("Could not load world.");
         success = false;
     }
     return success;
+}
+
+bool Game::start_level(const std::string &name) {
+    Level level;
+    if (!level.load(m_sprites, name)) {
+        return false;
+    }
+
+    for (const auto &sp : level.spawn()) {
+        Person p(sp.pos - m_world.center(), Direction::DOWN);
+        for (int i = 0; i < PART_COUNT; i++) {
+            p.set_part(static_cast<Part>(i), sp.sprite[i]);
+        }
+        add_person(p);
+    }
+
+    return true;
 }
 
 void Game::handle_event(const sg_event &evt) {

@@ -6,8 +6,10 @@
 #define LD_GAME_PERSON_HPP
 #include "defs.hpp"
 #include "sprite.hpp"
+#include "base/range.hpp"
 namespace Game {
 class Game;
+enum class SpawnType;
 
 // Parts of a person.
 static const int PART_COUNT = 7;
@@ -37,9 +39,9 @@ private:
 
 public:
     // Create a part of a person with an offset.
-    static PartSprite create(Sprite sprite, int frame, int offx, int offy) {
+    static PartSprite create(int sprite, int frame, int offx, int offy) {
         PartSprite s;
-        s.m_data = ((static_cast<int>(sprite) & 0xff) |
+        s.m_data = ((sprite & 0xff) |
                     ((frame & 0xff) << 8) |
                     (((offx + 8) & 0xf) << 16) |
                     (((offy + 8) & 0xf) << 20));
@@ -48,8 +50,8 @@ public:
     }
 
     // Get the sprite group for this part.
-    Sprite sprite() const {
-        return static_cast<Sprite>(m_data & 0xff);
+    int sprite() const {
+        return m_data & 0xff;
     }
 
     // Get the current frame for this part.
@@ -130,9 +132,11 @@ public:
         m_in_move = move;
     };
 
+    void set_spawn_type(SpawnType s);
+
     /// Set the apperance of a part of the person.
-    void set_part(Part part, Sprite sprite) {
-        m_part[static_cast<int>(part)] = static_cast<int>(sprite);
+    void set_part(Part part, int sprite) {
+        m_part[static_cast<int>(part)] = sprite;
     }
 
     // ============================================================
@@ -153,14 +157,10 @@ public:
         }};
     }
 
-    // Get an iterator to the first sprite in the person.
-    const PartSprite *begin() const {
-        return m_sprite;
-    }
-
-    // Get an iterator to the last sprite in the person.
-    const PartSprite *end() const {
-        return m_sprite + m_spritecount;
+    // Get the person's sprites.
+    Base::Range<PartSprite> sprite() const {
+        return Base::Range<PartSprite>(
+            m_sprite, m_sprite + m_spritecount);
     }
 };
 

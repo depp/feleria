@@ -6,6 +6,7 @@
 #define LD_GRAPHICS_SYSTEM_HPP
 #include "shader.hpp"
 #include "sprite.hpp"
+#include "base/image.hpp"
 #include "sg/opengl.h"
 namespace Game {
 class Game;
@@ -17,7 +18,7 @@ class System {
 private:
     struct SysSprite {
         Base::Program<Shader::Sprite> prog;
-        SpriteSheet sheet;
+        Base::Texture texture;
         SpriteArray array;
         GLuint buffer;
 
@@ -42,7 +43,7 @@ public:
     System &operator=(const System &) = delete;
 
     /// Load all graphical assets.
-    void load(const Game::Game &game);
+    bool load(const Game::Game &game);
     /// Draw the game's graphics.
     void draw(int width, int height, const Game::Game &game);
 };

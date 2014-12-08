@@ -50,6 +50,11 @@ public:
         return m_size;
     }
 
+    /// Get the map center, in map coordinates (not world coordinates).
+    Vec2 center() const {
+        return m_center;
+    }
+
     /// Get the terrain height at the given position.
     float height_at(Vec2 pos) const;
 };

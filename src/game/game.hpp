@@ -7,6 +7,7 @@
 #include "defs.hpp"
 #include "control.hpp"
 #include "world.hpp"
+#include "sprite.hpp"
 #include <vector>
 namespace Game {
 class Person;
@@ -20,6 +21,7 @@ private:
     Control::Bindings m_bindings;
     Control::FrameInput m_frame_input;
 
+    SpriteData m_sprites;
     World m_world;
     std::vector<Person> m_person, m_person_pending;
 
@@ -35,6 +37,9 @@ public:
 
     /// Load all resources.
     bool load();
+
+    /// Start a level.
+    bool start_level(const std::string &name);
 
     /// Handle input from the user.
     void handle_event(const sg_event &evt);
@@ -68,6 +73,11 @@ public:
     /// Used for interpolating between frames.
     float frame_frac() const {
         return (float) ((m_curtime - m_frametime) / m_dt);
+    }
+
+    /// Get the sprite data.
+    const SpriteData &sprites() const {
+        return m_sprites;
     }
 
     /// Get the game world.
