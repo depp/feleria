@@ -9,7 +9,6 @@
 #include "base/range.hpp"
 namespace Game {
 class Game;
-enum class SpawnType;
 
 // Parts of a person.
 static const int PART_COUNT = 7;
@@ -79,10 +78,7 @@ public:
 
 private:
     int m_identity;
-    // Input flags.
-    unsigned m_in_flags;
-    // Movement input.
-    Vec2 m_in_move;
+    bool m_is_player;
 
     // The current facing direction.
     Direction m_dir;
@@ -127,17 +123,13 @@ public:
     // Modifying
     // ============================================================
 
-    /// Set the input controlling this person's movement.
-    void set_input(Vec2 move, unsigned flags) {
-        m_in_flags = flags;
-        m_in_move = move;
-    };
-
-    void set_spawn_type(SpawnType s);
-
     /// Set the apperance of a part of the person.
     void set_part(Part part, int sprite) {
         m_part[static_cast<int>(part)] = sprite;
+    }
+
+    void set_player(bool is_player) {
+        m_is_player = is_player;
     }
 
     // ============================================================

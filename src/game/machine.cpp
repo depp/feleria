@@ -12,6 +12,7 @@ namespace {
 const int MACHINE_SPEED = 1000;
 
 #include "data/opcode.enum.hpp"
+#include "data/opcode.array.hpp"
 
 int opcode_val(Opcode op) {
     return 0x8000 | static_cast<int>(op);
@@ -21,6 +22,7 @@ class ProgReader {
 private:
     Base::Range<unsigned short> m_prog;
     const unsigned short *m_pc;
+    int m_opcode;
 
     bool check_pc() const {
         if (m_pc == nullptr) {
@@ -43,7 +45,7 @@ private:
 
 public:
     ProgReader(const Script &script, int pc)
-        : m_prog(script.program()), m_pc(nullptr) {
+        : m_prog(script.program()), m_pc(nullptr), m_opcode(-1) {
         if (pc != -1) {
             if (check_pc(pc)) {
                 m_pc = m_prog.begin() + pc;
@@ -69,6 +71,7 @@ public:
             error("invalid opcode");
             return Opcode::EXIT;
         }
+        m_opcode = data;
         return static_cast<Opcode>(data);
     }
 
@@ -106,7 +109,10 @@ public:
     }
 
     void error(const char *msg) {
-        Log::error("$%04x: %s", (int) (m_pc - 1 - m_prog.begin()), msg);
+        const char *opname = m_opcode >= 0 ?
+            OPCODE_NAMES[m_opcode] : "<none>";
+        Log::error("$%04x: %s (after %s)",
+                   (int) (m_pc - 1 - m_prog.begin()), msg, opname);
         m_pc = nullptr;
     }
 
@@ -228,6 +234,19 @@ void Machine::run(Game &game) {
         case Opcode::SAY:
             r.error("SAY");
             break;
+
+        case Opcode::SETPLAYER: {
+            int name = r.imm();
+            for (auto &p : game.person()) {
+                if (p.identity() != name) {
+                    p.set_player(false);
+                } else {
+                    p.set_player(true);
+                    name = -1;
+                }
+            }
+            break;
+        }
 
         case Opcode::SETVAR: {
             int var = r.imm();

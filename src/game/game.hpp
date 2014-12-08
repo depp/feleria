@@ -79,6 +79,10 @@ public:
         return (float) ((m_curtime - m_frametime) / m_dt);
     }
 
+    const Control::FrameInput &frame_input() const {
+        return m_frame_input;
+    }
+
     /// Get the sprite data.
     const SpriteData &sprites() const {
         return m_sprites;

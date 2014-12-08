@@ -54,8 +54,7 @@ const Part PART_ORDER[4][PART_COUNT] = {
 
 Person::Person(int identity, Vec2 pos, Direction dir) {
     m_identity = identity;
-    m_in_flags = 0;
-    m_in_move = Vec2::zero();
+    m_is_player = false;
     m_dir = dir;
     for (int i = 0; i < PART_COUNT; i++)
         m_part[i] = -1;
@@ -74,12 +73,19 @@ void Person::initialize(Game &game) {
 
 void Person::update(Game &game) {
     float dtime = game.frame_delta();
+    Vec2 in_move;
+    if (m_is_player) {
+        const auto &in = game.frame_input();
+        in_move = in.move;
+    } else {
+        in_move = Vec2::zero();
+    }
 
     // Calculate velocity.
     Vec2 v0, v1;
     {
         v0 = m_vel;
-        Vec2 vmove = m_in_move * MOVE_SPEED;
+        Vec2 vmove = in_move * MOVE_SPEED;
         Vec2 dv = vmove - v0;
         float dvmag = dv.mag();
         float faccel = dtime * ACCELERATION;
@@ -88,7 +94,7 @@ void Person::update(Game &game) {
 
     // Calculate physics push
     {
-        auto tr = game.world().edge_distance(m_pos[1], true);
+        auto tr = game.world().edge_distance(m_pos[1], m_is_player);
         float push_amt = PUSH_DIST - tr.first;
         if (push_amt > 0.0f) {
             float dc = Vec2::dot(tr.second, v1);
@@ -98,8 +104,6 @@ void Person::update(Game &game) {
     }
 
     // Update position and input fields.
-    m_in_flags = 0;
-    m_in_move = Vec2::zero();
     m_pos[0] = m_pos[1];
     m_pos[1] = m_pos[1] + (v0 + v1) * (0.5 * dtime);
     m_posz[0] = m_posz[1];
