@@ -247,6 +247,25 @@ void System::draw(int width, int height, const Game::Game &game) {
                     s.font = font;
                 }
             }
+
+            // Vec2 pos = Vec2::zero();
+            int n = (int) std::min((std::size_t) NLINE, text.size());
+            for (int i = 0; i < n; i++) {
+                const char *ltext = text[i].text;
+                auto flow = sg_textflow_new(nullptr);
+                if (!flow) {
+                    break;
+                }
+                sg_textflow_setfont(flow, s.font);
+                sg_textflow_addtext(flow, ltext, std::strlen(ltext));
+
+                auto layout = sg_textlayout_new(flow, nullptr);
+                sg_textflow_free(flow);
+                if (!layout) {
+                    break;
+                }
+                s.line[i].layout = layout;
+            }
         }
     }
 
