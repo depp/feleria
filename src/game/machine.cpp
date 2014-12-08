@@ -298,12 +298,30 @@ exit:
     m_pc = r.get_pc();
 }
 
+void Machine::trigger_script(int character) {
+    if (m_pc != -1) {
+        return;
+    }
+    if (character < 0) {
+        return;
+    }
+    m_pc = get_var(character);
+}
+
 void Machine::set_var(int var, int value) {
     if (var < 0 || (std::size_t) var >= m_memory.size()) {
         Log::error("Invalid variable: %d", var);
         return;
     }
     m_memory[var] = value;
+}
+
+int Machine::get_var(int var) const {
+    if (var < 0 || (std::size_t) var >= m_memory.size()) {
+        Log::error("Invalid variable: %d", var);
+        return -1;
+    }
+    return m_memory[var];
 }
 
 }

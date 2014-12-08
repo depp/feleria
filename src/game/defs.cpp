@@ -14,4 +14,14 @@ Direction direction_from_vec(Vec2 dir) {
     }
 }
 
+Vec2 vec_from_direction(Direction dir) {
+    switch (dir) {
+    default:
+    case Direction::RIGHT: return Vec2 {{ +1.0f,  0.0f }};
+    case Direction::UP:    return Vec2 {{  0.0f, +0.0f }};
+    case Direction::LEFT:  return Vec2 {{ -1.0f,  0.0f }};
+    case Direction::DOWN:  return Vec2 {{  0.0f, -1.0f }};
+    }
+}
+
 }

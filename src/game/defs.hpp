@@ -25,5 +25,8 @@ enum class Direction { RIGHT, UP, LEFT, DOWN };
 /// Convert a vector to a direction.
 Direction direction_from_vec(Vec2 dir);
 
+/// Convert a direction to a vector.
+Vec2 vec_from_direction(Direction dir);
+
 }
 #endif

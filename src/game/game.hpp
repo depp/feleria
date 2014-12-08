@@ -79,7 +79,7 @@ public:
         return (float) ((m_curtime - m_frametime) / m_dt);
     }
 
-    const Control::FrameInput &frame_input() const {
+    Control::FrameInput &frame_input() {
         return m_frame_input;
     }
 

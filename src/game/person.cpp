@@ -16,6 +16,8 @@ const float STEP_DISTANCE   = 1.0f;     // unit
 const float STAND_TIME      = 1.0;      // s
 
 const float PUSH_DIST = 0.25f;
+const float TOUCH_DIST = 2.0f;
+const float TOUCH_RADIUS = 3.0f;
 
 // Map from parts to animation groups.
 const Group PART_GROUP[PART_COUNT] = {
@@ -77,6 +79,27 @@ void Person::update(Game &game) {
     if (m_is_player) {
         const auto &in = game.frame_input();
         in_move = in.move;
+
+        using namespace Control;
+        if (in.new_buttons & button_mask(Button::ACTION_1)) {
+            Vec2 target = m_pos[1] + TOUCH_DIST * vec_from_direction(m_dir);
+            float best = TOUCH_RADIUS * TOUCH_RADIUS;
+            const Person *obj = nullptr;
+            for (const auto &p : game.person()) {
+                if (&p == this) {
+                    continue;
+                }
+                Vec2 delta = p.m_pos[1] - target;
+                float mag2 = delta.mag2();
+                if (mag2 < best) {
+                    best = mag2;
+                    obj = &p;
+                }
+            }
+            if (obj != nullptr) {
+                Log::debug("HIT");
+            }
+        }
     } else {
         in_move = Vec2::zero();
     }

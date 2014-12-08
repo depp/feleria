@@ -28,9 +28,14 @@ public:
 
     void reset();
 
+    // Jump to the given label.
     bool jump(const std::string &name);
 
+    // Run the machine for one frame.
     void run(Game &game);
+
+    // Trigger a character's script.
+    void trigger_script(int character);
 
     // ============================================================
     // Queries
@@ -38,6 +43,8 @@ public:
 
 private:
     void set_var(int var, int value);
+
+    int get_var(int var) const;
 };
 
 }

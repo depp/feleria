@@ -39,6 +39,12 @@ struct FrameInput {
     unsigned new_buttons;
     /// Player movement vector.
     Vec2 move;
+
+    void clear() {
+        buttons = 0;
+        new_buttons = 0;
+        move = Vec2::zero();
+    }
 };
 
 /// State of input, including recent history.
