@@ -4,10 +4,8 @@
    information, see LICENSE.txt. */
 #ifndef LD_GAME_SCRIPT_HPP
 #define LD_GAME_SCRIPT_HPP
-
 #include "base/file.hpp"
 #include "base/range.hpp"
-#include <vector>
 namespace Game {
 
 class Script {
@@ -18,8 +16,7 @@ private:
     Base::Range<unsigned short> m_labelpos;
     Base::Range<char> m_text;
     Base::Range<unsigned short> m_prog;
-
-    std::vector<unsigned char> m_memory;
+    Base::Range<char[16]> m_varname;
 
 public:
     // ============================================================
@@ -30,6 +27,19 @@ public:
 
     /// Load the sprite data.
     bool load();
+
+    // ============================================================
+    // Queries
+    // ============================================================
+
+    int get_label(const std::string &name) const;
+    const char *get_text(int index) const;
+    Base::Range<unsigned short> program() const {
+        return m_prog;
+    }
+    int memory_size() const {
+        return m_varname.size();
+    }
 };
 
 }
