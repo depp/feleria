@@ -149,6 +149,8 @@ Machine::Machine(const Script &script)
 void Machine::reset() {
     m_pc = -1;
     m_character = -1;
+    m_textserial++;
+    m_text.clear();
 }
 
 bool Machine::jump(const std::string &name) {
@@ -231,9 +233,17 @@ void Machine::run(Game &game) {
             r.error("SAVE");
             break;
 
-        case Opcode::SAY:
-            r.error("SAY");
+        case Opcode::SAY: {
+            const char *text = m_script.get_text(r.imm());
+            if (text != nullptr) {
+                Log::debug("Text: %s", text);
+                m_text.clear();
+                m_textserial++;
+                m_text.push_back(TextLine { text, 0, r.get_pc() });
+                r.halt();
+            }
             break;
+        }
 
         case Opcode::SETPLAYER: {
             int name = r.imm();

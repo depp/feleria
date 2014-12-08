@@ -10,6 +10,12 @@ namespace Game {
 class Script;
 class Game;
 
+struct TextLine {
+    const char *text;
+    int state;
+    int target;
+};
+
 class Machine {
 private:
     const Script &m_script;
@@ -17,7 +23,8 @@ private:
     int m_pc;
     int m_character;
     std::vector<int> m_memory;
-    std::vector<std::pair<std::string, int>> m_options;
+    unsigned m_textserial;
+    std::vector<TextLine> m_text;
 
 public:
     // ============================================================
@@ -40,6 +47,14 @@ public:
     // ============================================================
     // Queries
     // ============================================================
+
+    unsigned text_serial() const {
+        return m_textserial;
+    }
+
+    const std::vector<TextLine> &text() const {
+        return m_text;
+    }
 
 private:
     void set_var(int var, int value);
