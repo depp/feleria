@@ -78,6 +78,7 @@ public:
     };
 
 private:
+    int m_identity;
     // Input flags.
     unsigned m_in_flags;
     // Movement input.
@@ -112,7 +113,7 @@ public:
     // ============================================================
 
     /// Create a person at the given location.
-    Person(Vec2 pos, Direction dir);
+    Person(int identity, Vec2 pos, Direction dir);
 
     /// Initialize the person's state.  Called exactly once, after the
     /// person is added to the game.
@@ -142,6 +143,10 @@ public:
     // ============================================================
     // Queries
     // ============================================================
+
+    int identity() const {
+        return m_identity;
+    }
 
     /// Get the current facing direction.
     Direction direction() const {

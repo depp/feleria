@@ -16,6 +16,8 @@ private:
 
     int m_pc;
     int m_character;
+    std::vector<int> m_memory;
+    std::vector<std::pair<std::string, int>> m_options;
 
 public:
     // ============================================================
@@ -34,6 +36,8 @@ public:
     // Queries
     // ============================================================
 
+private:
+    void set_var(int var, int value);
 };
 
 }

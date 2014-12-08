@@ -94,6 +94,10 @@ public:
         return m_person;
     }
 
+    std::vector<Person> &person() {
+        return m_person;
+    }
+
 private:
     void advance();
 };

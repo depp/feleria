@@ -9,5 +9,7 @@ const char OPCODE_NAMES[OPCODE_COUNT][16] = {
     "response",
     "save",
     "say",
-    "spawn"
+    "setvar",
+    "spawn",
+    "sprite"
 };

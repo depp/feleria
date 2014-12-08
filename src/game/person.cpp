@@ -52,7 +52,8 @@ const Part PART_ORDER[4][PART_COUNT] = {
 
 }
 
-Person::Person(Vec2 pos, Direction dir) {
+Person::Person(int identity, Vec2 pos, Direction dir) {
+    m_identity = identity;
     m_in_flags = 0;
     m_in_move = Vec2::zero();
     m_dir = dir;
