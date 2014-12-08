@@ -14,7 +14,7 @@ const double MAX_UPDATE = 1.0;
 
 Game::Game()
     : m_dt(DEFAULT_DT), m_frametime(0.0), m_curtime(0.0),
-      m_dtime(0.0f) { }
+      m_dtime(0.0f), m_machine(m_script) { }
 
 Game::~Game() {}
 
@@ -36,8 +36,12 @@ bool Game::load() {
 }
 
 bool Game::start_level(const std::string &name) {
-    (void) &name;
-    return true;
+    Log::info("Loading level: %s", name.c_str());
+    bool success = m_machine.jump(name);
+    if (!success) {
+        success = false;
+    }
+    return success;
 }
 
 void Game::handle_event(const sg_event &evt) {
@@ -75,20 +79,12 @@ void Game::update(double time) {
 }
 
 void Game::add_person(const Person &person) {
-    m_person_pending.push_back(person);
+    m_person.push_back(person);
+    m_person.back().initialize(*this);
 }
 
 void Game::advance() {
-    if (!m_person.empty()) {
-        m_person[0].set_input(m_frame_input.move, 0);
-    }
-
-    for (std::size_t pos = 0; pos < m_person_pending.size(); pos++) {
-        m_person.push_back(m_person_pending[pos]);
-        m_person.back().initialize(*this);
-    }
-    m_person_pending.clear();
-
+    m_machine.run(*this);
     for (auto &p : m_person) {
         p.update(*this);
     }

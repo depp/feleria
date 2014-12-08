@@ -9,22 +9,26 @@
 #include "sg/record.h"
 #include "game/game.hpp"
 #include "graphics/system.hpp"
+#include "sg/cvar.h"
 using Base::Log;
 
 namespace {
 
+struct sg_cvar_string cv_level;
 Game::Game *game;
 Graphics::System *graphics;
 
 }
 
 void sg_game_init(void) {
+    sg_cvar_defstring(nullptr, "level", "Initial level.",
+                      &cv_level, "ch1", 0);
     game = new Game::Game;
     if (!game->load()) {
         Log::abort("Could not load game data.");
     }
-    if (!game->start_level("test")) {
-        Log::error("Could not load level.");
+    if (!game->start_level(cv_level.value)) {
+        Log::abort("Could not load level.");
     }
 }
 

@@ -9,6 +9,7 @@
 #include "world.hpp"
 #include "sprite.hpp"
 #include "script.hpp"
+#include "machine.hpp"
 #include <vector>
 namespace Game {
 class Person;
@@ -23,9 +24,10 @@ private:
     Control::FrameInput m_frame_input;
 
     Script m_script;
+    Machine m_machine;
     SpriteData m_sprites;
     World m_world;
-    std::vector<Person> m_person, m_person_pending;
+    std::vector<Person> m_person;
 
 public:
     // ============================================================

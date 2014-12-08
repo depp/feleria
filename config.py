@@ -41,6 +41,8 @@ defs.cpp
 defs.hpp
 game.cpp
 game.hpp
+machine.cpp
+machine.hpp
 person.cpp
 person.hpp
 script.cpp
