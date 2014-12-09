@@ -11,7 +11,7 @@ namespace Game {
 class Game;
 
 // Parts of a person.
-static const int PART_COUNT = 7;
+static const int PART_COUNT = 8;
 enum class Part {
     ITEM1,
     ITEM2,
@@ -19,7 +19,8 @@ enum class Part {
     TOP,
     HEAD,
     FACE,
-    HAT
+    HAT,
+    ONLY
 };
 
 // Animation groups

@@ -219,7 +219,7 @@ void Machine::run(Game &game) {
 
         switch (r.opcode()) {
         case Opcode::END:
-            Log::warn("unexpected END opcode");
+            // Ignore.
             break;
 
         case Opcode::EXIT:
@@ -236,6 +236,26 @@ void Machine::run(Game &game) {
         case Opcode::GOTO: {
             int target = r.imm();
             if (target >= 0) {
+                r.jump(target);
+            }
+            break;
+        }
+
+        case Opcode::IF: {
+            int var = r.imm();
+            int val = r.imm();
+            int target = r.imm();
+            if (get_var(var) == val) {
+                r.jump(target);
+            }
+            break;
+        }
+
+        case Opcode::IFNOT: {
+            int var = r.imm();
+            int val = r.imm();
+            int target = r.imm();
+            if (get_var(var) != val) {
                 r.jump(target);
             }
             break;
@@ -267,9 +287,11 @@ void Machine::run(Game &game) {
             break;
         }
 
-        case Opcode::RESET:
-            r.error("RESET");
+        case Opcode::RESET: {
+            game.person().clear();
+            m_character = -1;
             break;
+        }
 
         case Opcode::RESPONSE: {
             auto p = r.begin(), e = r.end();

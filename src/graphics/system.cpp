@@ -422,7 +422,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         Mat3 normalmat = Mat3::identity();
         Color terrain_color[8] = {
             Color::palette(1),  Color::palette(2),
-            Color::palette(10), Color::palette(20),
+            Color::palette(7), Color::palette(20),
             Color::palette(3),  Color::palette(3),
             Color::palette(27),  Color::palette(27)
         };

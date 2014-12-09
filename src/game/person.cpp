@@ -22,7 +22,7 @@ const float TOUCH_RADIUS = 3.01f;
 // Map from parts to animation groups.
 const Group PART_GROUP[PART_COUNT] = {
     Group::TORSO, Group::TORSO, Group::LEGS, Group::TORSO,
-    Group::NONE, Group::FACE, Group::NONE
+    Group::NONE, Group::FACE, Group::NONE, Group::NONE
 };
 
 // Information about each frame of the walk cycle.
@@ -45,10 +45,10 @@ const WalkFrame WALK_FRAME[WALK_COUNT + 1] = {
 
 #define PARTS_BODY Part::BOTTOM, Part::TOP, Part::HEAD, Part::FACE, Part::HAT
 const Part PART_ORDER[4][PART_COUNT] = {
-    { Part::ITEM1, PARTS_BODY, Part::ITEM2 }, // Right
-    { Part::ITEM2, Part::ITEM1, PARTS_BODY }, // Up
-    { Part::ITEM1, PARTS_BODY, Part::ITEM2 }, // Left
-    { PARTS_BODY, Part::ITEM1, Part::ITEM2 }  // Down
+    { Part::ITEM1, PARTS_BODY, Part::ITEM2, Part::ONLY }, // Right
+    { Part::ITEM2, Part::ITEM1, PARTS_BODY, Part::ONLY }, // Up
+    { Part::ITEM1, PARTS_BODY, Part::ITEM2, Part::ONLY }, // Left
+    { PARTS_BODY, Part::ITEM1, Part::ITEM2, Part::ONLY }  // Down
 };
 #undef PARTS_BODY
 

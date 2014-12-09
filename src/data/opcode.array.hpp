@@ -4,6 +4,8 @@ const char OPCODE_NAMES[OPCODE_COUNT][16] = {
     "exit",
     "fade",
     "goto",
+    "if",
+    "ifnot",
     "input",
     "reset",
     "response",
