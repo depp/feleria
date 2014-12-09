@@ -227,9 +227,31 @@ void Machine::run(Game &game) {
             break;
         }
 
-        case Opcode::INPUT:
-            r.error("INPUT");
+        case Opcode::INPUT: {
+            m_text.clear();
+            m_textserial++;
+            m_texttime = 0.0f;
+            m_textsel = 0;
+            auto p = r.begin(), e = r.end();
+            int vend = opcode_val(Opcode::END);
+            int vresp = opcode_val(Opcode::RESPONSE);
+            for (; p != e && *p != vend; p++) {
+                if (*p != vresp)
+                    continue;
+                int t = p[1]; // BOOM
+                const char *text = m_script.get_text(t);
+                if (text == nullptr)
+                    text = "<option>";
+                m_text.push_back(TextLine { text, 1, r.addr(p) + 2 });
+            }
+            if (m_text.size() < 2) {
+                Log::warn("Not enough responses");
+            } else {
+                m_text[0].state = 2;
+            }
+            r.halt();
             break;
+        }
 
         case Opcode::RESET:
             r.error("RESET");
@@ -262,6 +284,7 @@ void Machine::run(Game &game) {
                 m_text.clear();
                 m_textserial++;
                 m_text.push_back(TextLine { text, 0, r.get_pc() });
+                m_texttime = 0.0f;
                 m_textsel = 0;
                 r.halt();
             }

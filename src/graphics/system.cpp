@@ -274,7 +274,7 @@ void System::draw(int width, int height, const Game::Game &game) {
         Vec2 pos = TEXT_POS * pixscale;
         int n = (int) std::min((std::size_t) NLINE, text.size());
         for (int i = 0; i < n; i++) {
-            const char *ltext = text[0].text;
+            const char *ltext = text[i].text;
             auto flow = sg_textflow_new(nullptr);
             if (!flow) {
                 break;
