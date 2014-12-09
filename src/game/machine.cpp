@@ -176,17 +176,31 @@ void Machine::run(Game &game) {
     int ntext = (int) m_text.size();
     if (ntext > 0) {
         m_texttime += game.frame_delta();
-        if (m_texttime > TEXT_PERSIST) {
-            using namespace Control;
-            unsigned input = game.frame_input().new_buttons;
-            bool select = input & button_mask(Button::ACTION_1);
-            // bool up = input & button_mask(Button::MOVE_UP);
-            // bool down = input & button_mask(Button::MOVE_DOWN);
-            if (select) {
-                m_pc = m_text[m_textsel].target;
-                m_text.clear();
-                m_textserial++;
-                m_textsel = -1;
+        using namespace Control;
+        unsigned input = game.frame_input().new_buttons;
+        bool select = input & button_mask(Button::ACTION_1);
+        if (select && m_texttime > TEXT_PERSIST) {
+            m_pc = m_text[m_textsel].target;
+            m_text.clear();
+            m_textserial++;
+            m_textsel = -1;
+        } else if (ntext > 1) {
+            bool up = input & button_mask(Button::MOVE_UP);
+            bool down = input & button_mask(Button::MOVE_DOWN);
+            if (up) {
+                m_textsel--;
+                if (m_textsel < 0)
+                    m_textsel = ntext - 1;
+            }
+            if (down) {
+                m_textsel++;
+                if (m_textsel >= ntext)
+                    m_textsel = 0;
+            }
+            if (up || down) {
+                for (int i = 0; i < ntext; i++) {
+                    m_text[i].state = i == m_textsel ? 2 : 1;
+                }
             }
         }
     }
