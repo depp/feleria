@@ -7,6 +7,7 @@ const char OPCODE_NAMES[OPCODE_COUNT][16] = {
     "if",
     "ifnot",
     "input",
+    "music",
     "reset",
     "response",
     "save",

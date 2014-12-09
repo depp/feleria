@@ -287,6 +287,15 @@ void Machine::run(Game &game) {
             break;
         }
 
+        case Opcode::MUSIC: {
+            int i = r.imm();
+            const char *name = m_script.get_text(i);
+            if (name) {
+                Log::error("Play music: %s", name);
+            }
+            break;
+        }
+
         case Opcode::RESET: {
             game.person().clear();
             m_character = -1;
