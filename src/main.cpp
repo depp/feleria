@@ -21,6 +21,7 @@ Graphics::System *graphics;
 }
 
 void sg_game_init(void) {
+    sg_mixer_start();
     sg_cvar_defstring(nullptr, "level", "Initial level.",
                       &cv_level, "ch1", 0);
     game = new Game::Game;

@@ -6,6 +6,7 @@
 #define LD_GAME_MACHINE_HPP
 #include <vector>
 #include <string>
+struct sg_sound;
 namespace Game {
 class Script;
 class Game;
@@ -27,6 +28,7 @@ private:
     std::vector<TextLine> m_text;
     float m_texttime;
     int m_textsel;
+    std::string m_trackname;
 
 public:
     // ============================================================

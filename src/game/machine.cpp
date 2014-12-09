@@ -6,6 +6,7 @@
 #include "script.hpp"
 #include "game.hpp"
 #include "person.hpp"
+#include "sg/mixer.h"
 namespace Game {
 
 namespace {
@@ -291,7 +292,21 @@ void Machine::run(Game &game) {
             int i = r.imm();
             const char *name = m_script.get_text(i);
             if (name) {
-                Log::error("Play music: %s", name);
+                if (name != m_trackname) {
+                    std::string path("music/");
+                    path += name;
+                    m_trackname = name;
+                    static sg_mixer_channel *chan;
+                    if (chan != nullptr) {
+                        sg_mixer_channel_stop(chan);
+                        chan = nullptr;
+                    }
+                    auto snd = sg_mixer_sound_file(
+                        path.data(), path.size(), nullptr);
+                    sg_mixer_channel_play(snd, game.frame_abstime(),
+                                          SG_MIXER_FLAG_LOOP);
+                    sg_mixer_sound_decref(snd);
+                }
             }
             break;
         }
