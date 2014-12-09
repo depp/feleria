@@ -361,13 +361,12 @@ void System::draw(int width, int height, const Game::Game &game) {
     if (m_text.prog.is_loaded() && !m_text.empty) {
         const auto &s = m_text;
         const auto &prog = s.prog;
+        const auto &text = game.machine().text();
 
         glUseProgram(prog.prog());
 
         // texscale handled by draw()
         glUniform1i(prog->u_texture, 0);
-        Color color = Color::palette(21);
-        glUniform4fv(prog->u_color, 1, color.v);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_ALWAYS);
@@ -380,6 +379,9 @@ void System::draw(int width, int height, const Game::Game &game) {
             if (!line.layout) {
                 break;
             }
+            static const int PALETTE[3] = { 21, 23, 8 };
+            Color color = Color::palette(PALETTE[text[i].state]);
+            glUniform4fv(prog->u_color, 1, color.v);
             glUniform4fv(prog->u_vertxform, 1, line.vertxform);
             sg_textlayout_draw(
                 line.layout, prog->a_vert, prog->u_texscale);
