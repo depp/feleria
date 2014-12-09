@@ -280,6 +280,7 @@ void System::draw(int width, int height, const Game::Game &game) {
                 break;
             }
             sg_textflow_setfont(flow, s.font);
+            sg_textflow_setwidth(flow, -2.0f * TEXT_POS[0] * pixscale);
             sg_textflow_addtext(flow, ltext, std::strlen(ltext));
 
             auto layout = sg_textlayout_new(flow, nullptr);
