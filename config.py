@@ -67,6 +67,16 @@ transform.cpp
 transform.hpp
 ''')
 
+icon = sglib.Icon(base=__file__, path='icon', sources='''
+ico icon.ico
+16 icon16.png
+32 icon32.png
+48 icon48.png
+64 icon64.png
+128 icon128.png
+256 icon256.png
+''')
+
 def configure(build, sgmod):
     mod = build.target.module()
     mod.add_sources(
