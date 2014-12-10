@@ -98,6 +98,10 @@ app = sglib.App(
     sources=src,
     configure=configure,
     icon=None,
+    defaults={
+        'frontend': 'sdl',
+        'vorbis': False,
+    },
 )
 
 if __name__ == '__main__':
