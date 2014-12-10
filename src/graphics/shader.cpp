@@ -7,9 +7,9 @@ namespace Graphics {
 namespace Shader {
 using Base::ShaderField;
 
-#define AFIELD(name) { #name,       offsetof(TYPE, a_ ## name) }
-#define UFIELD(name) { #name,       offsetof(TYPE, u_ ## name) }
-#define UARRAY(name) { #name "[0]", offsetof(TYPE, u_ ## name) }
+#define AFIELD(name) { "in_" #name,       offsetof(TYPE, a_ ## name) }
+#define UFIELD(name) {  "u_" #name,       offsetof(TYPE, u_ ## name) }
+#define UARRAY(name) {  "u_" #name "[0]", offsetof(TYPE, u_ ## name) }
 
 #define TYPE Text
 const ShaderField TYPE::UNIFORMS[] = {

@@ -1,11 +1,13 @@
-#version 130
+#version 140
 
-in vec4 vert;
-uniform vec4 vertxform;
-uniform vec2 texscale;
-out vec2 texcoord;
+in vec4 in_vert;
+out vec2 ex_texcoord;
+
+uniform vec4 u_vertxform;
+uniform vec2 u_texscale;
 
 void main() {
-    texcoord = vert.zw * texscale;
-    gl_Position = vec4(vert.xy * vertxform.xy + vertxform.zw, 0.0, 1.0);
+    ex_texcoord = in_vert.zw * u_texscale;
+    gl_Position = vec4(
+        in_vert.xy * u_vertxform.xy + u_vertxform.zw, 0.0, 1.0);
 }

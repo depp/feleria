@@ -9,6 +9,7 @@
 #include "base/image.hpp"
 #include "sg/opengl.h"
 #include "sg/type.h"
+#include <memory>
 namespace Game {
 class Game;
 }
@@ -17,48 +18,15 @@ namespace Graphics {
 /// The graphics system, responsible for drawing everything.
 class System {
 private:
-    struct SysSprite {
-        Base::Program<Shader::Sprite> prog;
-        Base::Texture texture;
-        SpriteArray array;
-        GLuint buffer;
-        int util_sprite;
+    class SysUi;
+    class SysText;
+    class SysWorld;
+    class SysSprite;
 
-        SysSprite() : buffer(0), util_sprite(-1) {}
-    };
-
-    struct SysWorld {
-        Base::Program<Shader::World> prog;
-        GLuint buffer;
-        GLsizei count;
-
-        SysWorld() : buffer(0), count(0) {}
-    };
-
-    struct SysText {
-        static const int LINE_COUNT = 4;
-
-        struct Line {
-            sg_textlayout *layout;
-            float vertxform[4];
-        };
-
-        Base::Program<Shader::Text> prog;
-        Base::Program<Shader::Ui> uiprog;
-        sg_typeface *typeface;
-        sg_font *font;
-        bool empty;
-        Line line[LINE_COUNT];
-        unsigned serial;
-        GLuint buffer;
-        Base::Texture textbox;
-
-        SysText();
-    };
-
-    SysSprite m_sprite;
-    SysWorld m_world;
-    SysText m_text;
+    std::unique_ptr<SysUi> m_ui;
+    std::unique_ptr<SysText> m_text;
+    std::unique_ptr<SysWorld> m_world;
+    std::unique_ptr<SysSprite> m_sprite;
 
 public:
     System();

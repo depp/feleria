@@ -117,8 +117,10 @@ GLuint load_program(const std::string &vertexshader,
         { fragmentshader, GL_FRAGMENT_SHADER }
     } };
     LProgram program = load_program2(std::begin(files), std::end(files));
-    get_uniforms(program, object, uniforms);
-    get_attributes(program, object, attributes);
+    if (program.program) {
+        get_uniforms(program, object, uniforms);
+        get_attributes(program, object, attributes);
+    }
     return program.program;
 }
 

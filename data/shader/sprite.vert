@@ -1,16 +1,14 @@
-#version 130
+#version 140
 
-in vec3 vert;
-in vec2 texcoord;
+in vec3 in_vert;
+in vec2 in_texcoord;
+out vec2 ex_texcoord;
 
-out vec2 vtexcoord;
-
-uniform mat4 modelview;
-uniform mat4 projection;
-uniform vec4 vertxform;
-uniform vec2 texscale;
+uniform mat4 u_modelview;
+uniform mat4 u_projection;
+uniform vec2 u_texscale;
 
 void main() {
-    vtexcoord = texcoord * texscale;
-    gl_Position = projection * (modelview * vec4(vert, 1.0));
+    ex_texcoord = in_texcoord * u_texscale;
+    gl_Position = u_projection * (u_modelview * vec4(in_vert, 1.0));
 }
