@@ -37,6 +37,8 @@ void sg_game_destroy(void) {}
 
 void sg_game_getinfo(struct sg_game_info *info) {
     info->name = "Legend of Feleria";
+    info->default_width = 1920;
+    info->default_height = 1080;
 }
 
 void sg_game_event(union sg_event *evt) {
