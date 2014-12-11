@@ -767,10 +767,35 @@ System::~System() {}
 bool System::load(const Game::Game &game) {
     bool success = true;
     sg_opengl_checkerror("System::load");
+
+    {
+        // We can't use GEW's version number variables, because we
+        // enable glewExperimental, because GLEW doesn't query version
+        // numbers correctly in the core profile.
+        if (!GLEW_VERSION_3_0) {
+            Log::abort("OpenGL version 3.0 or greater is required.");
+            return false;
+        }
+        int major, minor;
+        glGetIntegerv(GL_MAJOR_VERSION, &major);
+        glGetIntegerv(GL_MINOR_VERSION, &minor);
+        int version = (major << 8) | (minor & 0xff);
+        // Mesa does not support GLSL > 1.30.
+        // OS X does not support GLSL < 1.40 (unless you go back to 1.20).
+        if (version >= 0x0301) {
+            Base::shader_path = "shader/v140";
+        } else {
+            Base::shader_path = "shader/v130";
+        }
+        Log::info("OpenGL %d.%d (shader path: %s)",
+                  major, minor, Base::shader_path.c_str());
+    }
+
     LOAD(ui);
     LOAD(text);
     LOAD(world);
     LOAD(sprite);
+
     return success;
 }
 

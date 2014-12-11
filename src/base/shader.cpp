@@ -87,7 +87,9 @@ LProgram load_program2(I first, I last) {
         if (!name.empty())
             name += ',';
         name += i->path;
-        std::string path = "shader/" + i->path;
+        std::string path = shader_path;
+        path += '/';
+        path += i->path;
         GLuint shader = sg_shader_file(
             path.data(), path.size(), i->type, nullptr);
         if (!shader) {
@@ -106,6 +108,8 @@ LProgram load_program2(I first, I last) {
 }
 
 }
+
+std::string shader_path("shader");
 
 GLuint load_program(const std::string &vertexshader,
                     const std::string &fragmentshader,

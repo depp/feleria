@@ -9,6 +9,9 @@
 #include <string>
 namespace Base {
 
+/// Path to the directory where shaders are located.
+extern std::string shader_path;
+
 /// A field in an object which stores program attributes and uniform indexes.
 struct ShaderField {
     /// The name of the uniform or attribute.

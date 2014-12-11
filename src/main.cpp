@@ -46,9 +46,6 @@ void sg_game_event(union sg_event *evt) {
             delete graphics;
             graphics = nullptr;
         }
-        if (!GLEW_VERSION_3_2) {
-            Log::abort("OpenGL 3.2 is not supported.");
-        }
         graphics = new Graphics::System;
         if (!graphics->load(*game)) {
             Log::abort("Could not load graphics data.");
