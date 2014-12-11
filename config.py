@@ -94,10 +94,11 @@ app = sglib.App(
     uri='http://www.moria.us/ludumdare/ld31/',
     copyright='Copyright © 2014 Dietrich Epp',
     identifier='us.moria.feleria',
+    apple_category='public.app-category.adventure-games',
     uuid='f6b6beed-78fb-4019-a56e-b41ea0a5b5bc',
     sources=src,
     configure=configure,
-    icon=None,
+    icon=icon,
     defaults={
         'frontend': 'sdl',
         'vorbis': False,
