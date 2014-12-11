@@ -45,7 +45,8 @@ public:
     void calloc(sg_pixbuf_format_t format, int width, int height);
 };
 
-struct Texture {
+class Texture {
+public:
     GLuint tex;
     short iwidth;
     short iheight;

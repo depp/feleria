@@ -37,9 +37,10 @@ World::World()
       m_height_min(-1.0f),
       m_height_max(+1.0f),
       m_height_scale(1.0f),
-      m_vertex_scale{{ 1.0f, 1.0f, 1.0f }},
       m_heightmap(nullptr),
-      m_tilemap(nullptr) { }
+      m_tilemap(nullptr) {
+    m_vertex_scale = Vec3{{1.0f, 1.0f, 1.0f}};
+}
 
 bool World::load() {
     World w;
