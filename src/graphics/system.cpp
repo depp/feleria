@@ -57,7 +57,63 @@ struct FrameData {
     Mat4 worldview;
     Quat camera_angle;
     float pixscale;
+
+    FrameData(int width, int height, const Game::Game &game);
 };
+
+FrameData::FrameData(int width, int height, const Game::Game &game)
+    : game(game), width(width), height(height) {
+    // Reference aspect ratio.
+    const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
+    // 35mm equivalent focal length.
+    const double focal = 55.0;
+    // Width of the subject.
+    const double subject_size = 64.0 * 1.4;
+
+    double distance;
+
+    {
+        // We pretend that we are using a 16:9 aspect ratio.
+        double xratio = 18.0 / focal;
+        double yratio = xratio * inv_ref_aspect;
+        distance = 0.5 * subject_size / xratio;
+
+        // Then we expand the FOV to match the actual aspect ratio.
+        double aspect = (double) width / (double) height;
+        if (aspect > ref_aspect) {
+            xratio = yratio * aspect;
+            pixscale = (float) height * (1.0f / 1080.0f);
+        } else {
+            yratio = xratio / aspect;
+            pixscale = (float) width * (1.0f / 1920.0f);
+        }
+
+        projection = Mat4::perspective(
+            (float) xratio,
+            (float) yratio,
+            std::max(1.0f, (float) (distance - 0.5 * subject_size)),
+            (float) (distance + 0.5 * subject_size));
+    }
+
+    // View angle.
+    const double azimuth = 180.0;
+    const double elevation = 40.0;
+
+    {
+        camera_angle =
+            Quat::rotation(
+                Vec3{{0.0f, 0.0f, 1.0f}},
+                (std::atan(1.0) / 45.0) * (180.0 - azimuth)) *
+            Quat::rotation(
+                Vec3{{1.0f, 0.0f, 0.0f}},
+                (std::atan(1.0) / 45.0) * (90.0 - elevation));
+        Vec3 target {{ 0.0f, 0.0f, 2.0f }};
+        Vec3 dir = camera_angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
+        Vec3 pos = target + dir * (float) distance;
+        worldview = Mat4::rotation(camera_angle.conjugate()) *
+            Mat4::translation(-pos);
+    }
+}
 
 }
 
@@ -99,6 +155,7 @@ System::SysUi::~SysUi() {
 }
 
 bool System::SysUi::load(const Game::Game &game) {
+    (void) &game;
     bool success = true;
 
     if (!m_textbox.load("image/textbox")) {
@@ -239,6 +296,7 @@ System::SysText::~SysText() {
 }
 
 bool System::SysText::load(const Game::Game &game) {
+    (void) &game;
     bool success = true;
 
     const char *path = "font/Alegreya-Bold";
@@ -571,6 +629,7 @@ System::SysSprite::~SysSprite() {
 }
 
 bool System::SysSprite::load(const Game::Game &game) {
+    (void) &game;
     bool success = true;
 
     if (!m_texture.load("image/sprite")) {
@@ -721,62 +780,7 @@ void System::draw(int width, int height, const Game::Game &game) {
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    FrameData f { game };
-    f.width = width;
-    f.height = height;
-
-    {
-        // Reference aspect ratio.
-        const double ref_aspect = 16.0 / 9.0, inv_ref_aspect = 9.0 / 16.0;
-        // 35mm equivalent focal length.
-        const double focal = 55.0;
-        // Width of the subject.
-        const double subject_size = 64.0 * 1.4;
-
-        double distance;
-
-        {
-            // We pretend that we are using a 16:9 aspect ratio.
-            double xratio = 18.0 / focal;
-            double yratio = xratio * inv_ref_aspect;
-            distance = 0.5 * subject_size / xratio;
-
-            // Then we expand the FOV to match the actual aspect ratio.
-            double aspect = (double) width / (double) height;
-            if (aspect > ref_aspect) {
-                xratio = yratio * aspect;
-                f.pixscale = (float) height * (1.0f / 1080.0f);
-            } else {
-                yratio = xratio / aspect;
-                f.pixscale = (float) width * (1.0f / 1920.0f);
-            }
-
-            f.projection = Mat4::perspective(
-                (float) xratio,
-                (float) yratio,
-                std::max(1.0f, (float) (distance - 0.5 * subject_size)),
-                (float) (distance + 0.5 * subject_size));
-        }
-
-        // View angle.
-        const double azimuth = 180.0;
-        const double elevation = 40.0;
-
-        {
-            f.camera_angle =
-                Quat::rotation(
-                    Vec3{{0.0f, 0.0f, 1.0f}},
-                    (std::atan(1.0) / 45.0) * (180.0 - azimuth)) *
-                Quat::rotation(
-                    Vec3{{1.0f, 0.0f, 0.0f}},
-                    (std::atan(1.0) / 45.0) * (90.0 - elevation));
-            Vec3 target {{ 0.0f, 0.0f, 2.0f }};
-            Vec3 dir = f.camera_angle.transform(Vec3{{0.0f, 0.0f, 1.0f}});
-            Vec3 pos = target + dir * (float) distance;
-            f.worldview = Mat4::rotation(f.camera_angle.conjugate()) *
-                Mat4::translation(-pos);
-        }
-    }
+    FrameData f(width, height, game);
 
     m_ui->draw(f);
     m_text->draw(f);
